@@ -6,7 +6,7 @@ import Update_Contestant from 'src/views/form-layouts/Update_Contestant'
 import BaseTable from 'src/views/tables/BaseTable'
 
 const Index = () => {
-  const [constestantList, setContestantList] = useState(false)
+  const [constestantList, setContestantList] = useState(false);
   return (
     <div>
       {/* <Grid container spacing={5}>
