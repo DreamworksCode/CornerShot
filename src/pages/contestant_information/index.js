@@ -5,7 +5,7 @@ import Contestant_information from 'src/views/form-layouts/Contestant_informatio
 import Update_Contestant from 'src/views/form-layouts/Update_Contestant'
 import BaseTable from 'src/views/tables/BaseTable'
 
-const index = () => {
+const Index = () => {
   const [constestantList, setContestantList] = useState(false)
   return (
     <div>
@@ -36,4 +36,4 @@ const index = () => {
   )
 }
 
-export default index
+export default Index
