@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid'
 import React, { useState } from 'react'
 import Contestant_information from 'src/views/form-layouts/Contestant_information'
 import Update_Contestant from 'src/views/form-layouts/Update_Contestant'
-import BaseTable from 'src/views/tables/BaseTable'
+import BaseTable from 'src/views/tables/BaseTable';
 
 const Index = () => {
   const [constestantList, setContestantList] = useState(false);
@@ -33,7 +33,7 @@ const Index = () => {
       <Divider sx={{ my: 5 }}>Add Contestant</Divider>
       <Contestant_information />
     </div>
-  )
+  );
 }
 
 export default Index
