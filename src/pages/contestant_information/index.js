@@ -7,23 +7,7 @@ import BaseTable from 'src/views/tables/BaseTable';
 
 const Index = () => {
   const [constestantList, setContestantList] = useState(false);
-  return (
-    <div>
-      {/* <Grid container spacing={5}>
-        <Grid item xs={6} sm={4}>
-          <Button onClick={()=>setContestantState(true)} type='button' variant='contained' size='medium'>
-            New Contestant
-          </Button>
-        </Grid>
-        <Grid item xs={6} sm={4}>
-          <Button onClick={()=>setContestantState(false)} type='button' variant='contained' size='medium'>
-            Update Contestant
-          </Button>
-        </Grid>
-      </Grid> */}
-      {/* {
-        contestantState?<Contestant_information />:<Update_Contestant/>
-      } */}
+  return <div>
       <Grid item xs={12} sx={{textAlign:"center"}}>
         <Button onClick={()=>setContestantList(prev=>!prev)} sx={{marginBottom:"10px"}}  type='button' variant='contained' size='medium'>
           {!constestantList?"Show Contestant List":"Hide Contestant List"}
@@ -33,7 +17,6 @@ const Index = () => {
       <Divider sx={{ my: 5 }}>Add Contestant</Divider>
       <Contestant_information />
     </div>
-  );
 }
 
 export default Index
