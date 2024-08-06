@@ -9,6 +9,8 @@ const PickAndDraw = ({ selectedRopingId, classification }) => {
   return (
     <div>
     <Add_Teams selectedRopingId={selectedRopingId} classification={classification} flag={flag} setFlag={setFlag}/>
+      {/* <Divider sx={{ my: 5 }}>Draw</Divider>
+    <Add_contestant selectedRopingId={selectedRopingId} flag={flag} setFlag={setFlag} /> */}
       <Divider sx={{ my: 5 }}>Roping Information</Divider>
       <Contest_Roping_Information selectedRopingId={selectedRopingId} classification={classification} setFlag={setFlag} flag={flag} />
     </div>

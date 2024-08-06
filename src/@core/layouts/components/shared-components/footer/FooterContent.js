@@ -11,7 +11,7 @@ const FooterContent = () => {
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between' }}>
       <Typography sx={{ mr: 2 }}>
-        {` ${new Date().getFullYear()}, CopyRight © `}
+        {` ${new Date().getFullYear()}, CopyRight ©  `}
         <Box component='span' sx={{ color: 'error.main' }}>
         Corner Shot
         </Box>

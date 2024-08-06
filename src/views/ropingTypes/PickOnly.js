@@ -17,4 +17,6 @@ const PickOnly = ({ selectedRopingId, classification }) => {
   )
 }
 
-export default PickOnly;
+
+
+export default PickOnly

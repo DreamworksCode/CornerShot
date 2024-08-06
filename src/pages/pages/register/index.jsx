@@ -36,7 +36,11 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 import { Modal, useMediaQuery } from '@mui/material'
 import router from 'next/router'
+<<<<<<< HEAD
 import { useTheme } from '@mui/material/styles';
+=======
+import { useTheme } from '@mui/material/styles'
+>>>>>>> 31b23b0b0bb471edab3c16d672ef104b10be087c
 
 // ** Styled Components
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -58,10 +62,18 @@ const FormControlLabel = styled(MuiFormControlLabel)(({ theme }) => ({
   }
 }))
 
+<<<<<<< HEAD
 const RegisterPage = () => {  
   
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+=======
+const RegisterPage = () => {
+  const theme = useTheme()
+
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
+>>>>>>> 31b23b0b0bb471edab3c16d672ef104b10be087c
   const style = {
     position: 'absolute',
     top: '50%',
@@ -75,7 +87,13 @@ const RegisterPage = () => {
     overflowY: 'auto',
     maxHeight: 600
   }
+<<<<<<< HEAD
   const [open, setOpen] = useState(false)
+=======
+
+  const [open, setOpen] = useState(false);
+
+>>>>>>> 31b23b0b0bb471edab3c16d672ef104b10be087c
   const [values, setValues] = useState({
     first_name: '',
     last_name: '',
@@ -83,6 +101,10 @@ const RegisterPage = () => {
     password: '',
     showPassword: false
   })
+<<<<<<< HEAD
+=======
+
+>>>>>>> 31b23b0b0bb471edab3c16d672ef104b10be087c
   const [message, setMessage] = useState('')
 
   const handleChange = prop => event => {
@@ -100,14 +122,23 @@ const RegisterPage = () => {
   const handleOpen = () => {
     setOpen(true)
   }
+<<<<<<< HEAD
   const handleClose = () => {
     setOpen(false)
   }
+=======
+
+  const handleClose = () => {
+    setOpen(false)
+  }
+  
+>>>>>>> 31b23b0b0bb471edab3c16d672ef104b10be087c
   const handleSubmit = async e => {
     e.preventDefault()
     if (values.password.length < 8) {
       // alert("Password should be of 8 characters");
       setMessage('Password should be of atleast 8 characters')
+<<<<<<< HEAD
       handleOpen();
     }
     else if(values.first_name.length===0 || values.last_name.length===0){
@@ -115,6 +146,13 @@ const RegisterPage = () => {
       handleOpen();
     } 
     else {
+=======
+      handleOpen()
+    } else if (values.first_name.length === 0 || values.last_name.length === 0) {
+      setMessage("Input parameters can't be blank")
+      handleOpen()
+    } else {
+>>>>>>> 31b23b0b0bb471edab3c16d672ef104b10be087c
       const data = {
         first_name: values.first_name,
         last_name: values.last_name,
@@ -131,12 +169,21 @@ const RegisterPage = () => {
         const results = await API.postAPICalling('auth/signup', data)
         setMessage(results.message)
         console.log(results)
+<<<<<<< HEAD
         handleOpen();
         router.push('/pages/login')
       } catch (error) {
         console.log('Some error occured ', error);
         setMessage(error.message);
         handleOpen();
+=======
+        handleOpen()
+        router.push('/pages/login')
+      } catch (error) {
+        console.log('Some error occured ', error)
+        setMessage(error.message)
+        handleOpen()
+>>>>>>> 31b23b0b0bb471edab3c16d672ef104b10be087c
       }
     }
   }
@@ -342,7 +389,11 @@ const RegisterPage = () => {
         aria-describedby='modal-modal-description'
       >
         <Box sx={style}>
+<<<<<<< HEAD
           <Typography id='modal-modal-description' sx={{ mt: 2, mb: 3, fontSize:"20px" }}>
+=======
+          <Typography id='modal-modal-description' sx={{ mt: 2, mb: 3, fontSize: '20px' }}>
+>>>>>>> 31b23b0b0bb471edab3c16d672ef104b10be087c
             {message}
           </Typography>
           <Button onClick={handleClose} type='button' variant='contained' size='medium'>
