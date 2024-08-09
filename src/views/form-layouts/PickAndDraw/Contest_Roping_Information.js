@@ -137,7 +137,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag,set
   React.useEffect(async () => {
     setDrawState("Processing");
     try {
-      const response = await API.getAPICalling(`PickAndDraw/get-teams/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_And_Draw`)
       console.log(response.data)
       setDrawState("Complete")
       const len=response.length;
@@ -160,12 +160,13 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag,set
       setDrawState('Processing')
       const data = {
         ropingId: selectedRopingId,
-        classification: classification
+        classification: classification,
+        roping_team_type:"Pick_And_Draw"
       }
       console.log(data)
       setFlag(prev => !prev)
       try {
-        const response = await API.postAPICalling(`PickAndDraw/teams`, data)
+        const response = await API.postAPICalling(`Teams/PickAndDraw_DrawPotteam`, data)
         console.log(response.data)
         setMessage(response.message)
         handleMessageOpen()
@@ -182,7 +183,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag,set
   const handleDeleteDrawButtonClick = async () => {
     setFlag(prev => !prev)
     try {
-      const response = await API.deleteAPICalling(`PickAndDraw/delete-drawteams/${selectedRopingId}`)
+      const response = await API.deleteAPICalling(`Teams/delete-drawteamsbyFlag/${selectedRopingId}`)
       console.log(response.data)
       setTeams([])
       setMessage(response.message)
@@ -199,7 +200,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag,set
   const handleListTeamClick = async () => {
     try {
       console.log("In list team :", selectedRopingId);
-      const response = await API.getAPICalling(`PickAndDraw/get-teams/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_And_Draw`)
       console.log(response)
       setTeams(response)
       const len=response.length;

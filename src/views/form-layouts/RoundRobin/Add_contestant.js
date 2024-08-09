@@ -65,7 +65,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
     transform: 'translate(-50%, -50%)',
     width: isMobile ? '90%' : 600,
     bgcolor: 'background.paper',
-    border: '1px solid #000',
+    border: '1px solid #000', 
     boxShadow: 24,
     p: 4,
     overflowY: 'auto',

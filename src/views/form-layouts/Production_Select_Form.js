@@ -99,7 +99,7 @@ const Production_Select_Form = ({ productions, setProductions }) => {
       handleOpen()
       setTimeout(() => {
         router.reload(window.location.pathname);
-      }, 500);
+      }, 800);
     }
   }
 

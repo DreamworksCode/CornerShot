@@ -115,7 +115,7 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
 
   useEffect(async () => {
     try {
-      const response = await API.getAPICalling(`pickonly/get-teams/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_Only`)
       console.log(response)
       setDrawEntries(response)
     } catch (error) {
@@ -167,18 +167,24 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
     ) {
       setMessage('please fill out the required fields first')
       handleMessageOpen()
-    } else {
+    } 
+    else if (selectedHeader.id===selectedHealer.id){
+      setMessage("Header and healer cannot be same");
+      handleMessageOpen();
+    }
+    else {
       const data = {
         roping_Id: selectedRopingId,
         classification: classification,
         headerRating: selectedHeader.header_rating,
         healerRating: selectedHealer.healer_rating,
         header_Id: selectedHeader.id,
-        healer_Id: selectedHealer.id
+        healer_Id: selectedHealer.id,
+        roping_team_type:"Pick_Only"
       }
       console.log(data)
       try {
-        const response = await API.postAPICalling('pickonly/createteam', data)
+        const response = await API.postAPICalling('Teams/PickOnlyTeams', data)
         console.log(response)
         // if(response.message==="Error creating Draw"){
         // }
@@ -205,10 +211,11 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
       const data={
         roping_Id :selectedRopingId,
         header_Id:selectedHeader.id,
-        healer_Id:selectedHealer.id
+        healer_Id:selectedHealer.id,
+        roping_team_type:"Pick_Only"
       }
       try {
-        const response = await API.deleteAPIWithoutToken(`pickonly/delete-teams`, data)
+        const response = await API.deleteAPIWithoutToken(`Teams/DeletePickOnly-teams`, data)
         console.log(response)
         setMessage(response.message)
         setFlag(prev=>!prev);

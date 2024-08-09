@@ -163,11 +163,12 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
         header_entries:entry.header,
         healer_entries:entry.healer,
         roping_id:selectedRopingId,
-        contestant_id:selectedContestant.id
+        contestant_id:selectedContestant.id,
+        roping_team_type:"Pick_Or_Draw"
       }
       console.log(data);
       try {
-        const response = await API.postAPICalling('PickOrDraw/AddDrawEntry', data)
+        const response = await API.postAPICalling('Teams/AddDrawEntry_PickOrDraw', data)
         console.log(response)
         // if(response.message==="Error creating Draw"){
           // }

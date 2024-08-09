@@ -138,7 +138,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
   React.useEffect(async () => {
     setDrawState("Processing");
     try {
-      const response = await API.getAPICalling(`PickOrDraw/get-teams/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_Or_Draw`)
       console.log(response.data)
       setDrawState("Complete")
       const len=response.length;
@@ -161,11 +161,12 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
       setDrawState('Processing')
       const data = {
         ropingId: selectedRopingId,
-        classification: classification
+        classification: classification,
+        roping_team_type:"Pick_Or_Draw"
       }
       console.log(data)
       try {
-        const response = await API.postAPICalling(`PickOrDraw/teams`, data)
+        const response = await API.postAPICalling(`Teams/PickOrDraw_DrawPotTeams`, data)
         console.log(response.data)
         setMessage(response.message)
         handleMessageOpen()
@@ -180,8 +181,11 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
   }
 
   const handleDeleteDrawButtonClick = async () => {
+    const data={
+      roping_team_type:"Pick_Or_Draw"
+    }
     try {
-      const response = await API.deleteAPICalling(`PickOrDraw/delete-drawteams/${selectedRopingId}`)
+      const response = await API.deleteAPIWithoutToken(`Teams/delete-drawteams/${selectedRopingId}`,data)
       console.log(response.data)
       setTeams([])
       setMessage(response.message)
@@ -198,7 +202,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
   const handleListTeamClick = async () => {
     try {
       console.log("In list team :", selectedRopingId);
-      const response = await API.getAPICalling(`PickOrDraw/get-teams/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_Or_Draw`)
       console.log(response)
       setTeams(response)
       const len=response.length;

@@ -135,7 +135,7 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
   useEffect(async () => {
     console.log("In add teams useEDffecty");
     try {
-      const response = await API.getAPICalling(`PickAndDraw/get-teams/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_And_Draw`)
       console.log(response)
       setDrawEntries(response)
     } catch (error) {
@@ -191,7 +191,12 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
     ) {
       setMessage('please fill out the required fields first')
       handleMessageOpen()
-    } else {
+    } 
+    else if (selectedHeader.id===selectedHealer.id){
+      setMessage("Header and healer cannot be same");
+      handleMessageOpen();
+    }
+    else {
       const data = {
         roping_Id: selectedRopingId,
         classification: classification,
@@ -200,11 +205,12 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
         healer_headerRating: selectedHealer.header_rating,
         healer_healerRating: selectedHealer.healer_rating,
         header_Id: selectedHeader.id,
-        healer_Id: selectedHealer.id
+        healer_Id: selectedHealer.id,
+        roping_team_type:"Pick_And_Draw"
       }
       console.log(data);
       try {
-        const response = await API.postAPICalling('PickAndDraw/createteam', data)
+        const response = await API.postAPICalling('Teams/PickAndDraw_PickOnlyteam', data)
         console.log(response)
         // if(response.message==="Error creating Draw"){
         // }
@@ -231,10 +237,11 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
       const data={
         roping_Id :selectedRopingId,
         header_Id:selectedHeader.id,
-        healer_Id:selectedHealer.id
+        healer_Id:selectedHealer.id,
+        roping_team_type:"Pick_And_Draw"
       }
       try {
-        const response = await API.deleteAPIWithoutToken(`PickAndDraw/delete-teams`, data)
+        const response = await API.deleteAPIWithoutToken(`Teams/delete-teams`, data)
         console.log(response)
         setMessage(response.message)
         setFlag(prev=>!prev);
@@ -251,7 +258,7 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
   const handleListTeam=async ()=>{
 
     try {
-      const response = await API.getAPICalling(`PickAndDraw/get-teams/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_And_Draw`)
       console.log(response)
       setDrawEntries(response);
       handleOpen();

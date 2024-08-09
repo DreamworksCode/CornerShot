@@ -110,7 +110,7 @@ const Contest_Roping_Information = ({ selectedRopingId, flag }) => {
   React.useEffect(async ()=>{
     try {
       console.log("In list team :", selectedRopingId);
-      const response = await API.getAPICalling(`pickonly/get-teams/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_Only`)
       console.log(response)
       setTeams(response)
       const len=response.length;

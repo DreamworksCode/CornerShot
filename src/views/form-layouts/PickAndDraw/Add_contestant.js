@@ -169,7 +169,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {const theme = us
       }
       console.log(data);
       try {
-        const response = await API.postAPICalling('PickOrDraw/AddDrawEntry', data)
+        const response = await API.postAPICalling('draw-entries/AddDrawEntry', data)
         console.log(response)
         // if(response.message==="Error creating Draw"){
           // }

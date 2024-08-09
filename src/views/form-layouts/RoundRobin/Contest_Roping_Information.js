@@ -145,12 +145,12 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
     } catch (error) {
       console.log('Some error:  ', error)
     }
-  }, [flag,selectedRopingId])
+  }, [flag,selectedRopingId]) 
 
   React.useEffect(async () => {
     setDrawState("Processing");
     try {
-      const response = await API.getAPICalling(`roundrobin/get-teams/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Round_Robin`)
       console.log(response.data)
       setDrawState("Complete")
       const len=response.length;
@@ -176,11 +176,12 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
       setDrawState('Processing')
       const data = {
         ropingId: selectedRopingId,
-        classification: classification
+        classification: classification,
+        roping_team_type:"Round_Robin"
       }
       console.log(data)
       try {
-        const response = await API.postAPICalling(`roundrobin/create-teams`, data)
+        const response = await API.postAPICalling(`Teams/RoundRobinTeams`, data)
         console.log(response.data)
         setMessage(response.message)
         handleMessageOpen()
@@ -196,7 +197,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
 
   const handleDeleteDrawButtonClick = async () => {
     try {
-      const response = await API.deleteAPICalling(`roundrobin/delete-teams/${selectedRopingId}`)
+      const response = await API.deleteAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Round_Robin`)
       console.log(response.data)
       setTeams([])
       setMessage(response.message)
@@ -213,7 +214,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
   const handleListTeamClick = async () => {
     try {
       console.log("In list team :", selectedRopingId);
-      const response = await API.getAPICalling(`roundrobin/get-teams/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Round_Robin`)
       console.log(response)
       setTeams(response)
       const len=response.length;

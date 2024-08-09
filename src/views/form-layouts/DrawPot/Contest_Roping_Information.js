@@ -137,7 +137,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
   React.useEffect(async () => {
     setDrawState("Processing");
     try {
-      const response = await API.getAPICalling(`drawpot/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Draw_Pot`)
       console.log(response.data)
       setDrawState("Complete")
       const len=response.length;
@@ -163,11 +163,12 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
       setDrawState('Processing')
       const data = {
         ropingId: selectedRopingId,
-        classification: classification
+        classification: classification,
+        roping_team_type:"Draw_Pot"
       }
       console.log(data)
       try {
-        const response = await API.postAPICalling(`drawpot/teams`, data)
+        const response = await API.postAPICalling(`Teams/DrawPotTeams`, data)
         console.log(response.data)
         setMessage(response.message)
         handleMessageOpen()
@@ -183,7 +184,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
 
   const handleDeleteDrawButtonClick = async () => {
     try {
-      const response = await API.deleteAPICalling(`drawpot/${selectedRopingId}`)
+      const response = await API.deleteAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Draw_Pot`)
       console.log(response.data)
       setTeams([])
       setMessage(response.message)
@@ -200,7 +201,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
   const handleListTeamClick = async () => {
     try {
       console.log("In list team :", selectedRopingId);
-      const response = await API.getAPICalling(`drawpot/${selectedRopingId}`)
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Draw_Pot`)
       console.log(response)
       setTeams(response)
       const len=response.length;
