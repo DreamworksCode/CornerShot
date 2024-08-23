@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import Production_Form from 'src/views/form-layouts/Production_Form'
-import Production_Select_Form from 'src/views/form-layouts/Production_Select_Form'
 import Divider from '@mui/material/Divider'
 import router from 'next/router'
 import API from './api'
+import Production_Select_Form from 'src/Components/Production/Production_Select_Form'
+import Production_Form from 'src/Components/Production/Production_Form'
 
 const Dashboard = () => {
 

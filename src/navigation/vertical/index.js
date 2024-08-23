@@ -34,19 +34,17 @@ const navigation = () => {
     {
       title: 'Roping Information',
       icon: AlertCircleOutline,
-      path: '/Roping'
+      path: '/roping'
     },
     {
       title: 'Enter Roping',
       icon: FormatLetterCase,
-      path: '/EnterRoping',
-      // openInNewTab: true
+      path: '/enterRoping'
     },
     {
       title: 'Enter Times',
       icon: Login,
-      path: '/enterTimes',
-      // openInNewTab: true
+      path: '/enterTimes'
     },
     {
       title: 'Contestant Information',

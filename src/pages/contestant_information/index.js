@@ -1,10 +1,10 @@
 import { Button, Divider } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import React, { useEffect, useState } from 'react'
-import Contestant_information from 'src/views/form-layouts/Contestant_information'
-import BaseTable from 'src/views/tables/BaseTable'
 import API from '../api'
 import router from 'next/router'
+import Contestant_Table from 'src/Components/Contestant/Contestant_Table'
+import Contestant_information from 'src/Components/Contestant/Contestant_information'
 
 const Index = () => {
   const [constestantList, setContestantList] = useState(false);
@@ -38,7 +38,7 @@ const Index = () => {
         >
           {!constestantList ? 'Show Contestant List' : 'Hide Contestant List'}
         </Button>
-        {constestantList ? <BaseTable contestant={contestant} setContestant={setContestant} /> : ''}
+        {constestantList ? <Contestant_Table contestant={contestant} setContestant={setContestant} /> : ''}
       </Grid>
       <Divider sx={{ my: 5 }}>Add Contestant</Divider>
       <Contestant_information setContestant={setContestant} />

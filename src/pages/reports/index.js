@@ -1,13 +1,32 @@
 import {  FormControl, FormControlLabel, Grid, Radio, RadioGroup } from '@mui/material'
-import React, {  useState } from 'react'
-import Payoff from 'src/views/form-layouts/Payoff';
-import Report from 'src/views/form-layouts/Report';
+import React, {  useEffect, useState } from 'react'
+import Payoff from 'src/Components/Tools&Reports/Payoff';
+import Report from 'src/Components/Tools&Reports/Report';
+import API from '../api';
+import router from 'next/router';
 
 const index = () => {
   const [choice,setChoice]=useState("Reports");
   const handleChange=(e)=>{
     setChoice(e.target.value);
   }
+
+  useEffect(async()=>{
+    const item=localStorage.getItem('token');
+    // const item = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsImVtYWlsIjoiYWJjQGdtYWlsLmNvbSIsImlhdCI6MTcxNTA3NjAyNywiZXhwIjoxNzE1MDc5NjI3fQ.46D5yWtQYwEX2oYv-qgYUk0E-Fp2XOJHB4Yz4L9jIg0"
+    if(item===null){
+      router.push("/pages/login")
+    }
+    try {
+      const response=await API.getAPICalling('production',item);
+      console.log(response);
+    } catch (error) {
+      console.log(" ",error);
+      if(error.message==="Unauthorized"){
+        router.push("/pages/login")
+      }
+    }
+  },[])
   return (
     <div>
       <Grid container spacing={5}>

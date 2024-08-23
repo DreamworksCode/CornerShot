@@ -1,8 +1,8 @@
 import { Card, CardContent, Divider, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import EnterTimes from 'src/views/form-layouts/EnterTimes'
 import API from '../api'
 import router from 'next/router'
+import EnterTimes from 'src/Components/Times/EnterTimes'
 
 const index = () => {  
 const [ropingList, setRopingList] = useState([])

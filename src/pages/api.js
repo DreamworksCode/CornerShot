@@ -3,7 +3,6 @@
 import axios from 'axios';
 
 // const BASE_URL = 'https://your-api-base-url.com'; // Change this to your API base URL
-// const BASE_URL="https://cornershot-backend.onrender.com/"
 // const BASE_URL="http://192.168.1.133:3000/"
 const BASE_URL="https://api.thecornershot.com/"
 
