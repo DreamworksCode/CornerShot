@@ -27,6 +27,7 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 // ** Global css styles
 import '../../styles/globals.css'
 
+
 const clientSideEmotionCache = createEmotionCache()
 
 // ** Pace Loader
@@ -50,7 +51,7 @@ const App = props => {
   const getLayout = Component.getLayout ?? (page => <UserLayout>{page}</UserLayout>)
 
   return (
-    <CacheProvider value={emotionCache}>
+     <CacheProvider value={emotionCache}>
       <Head>
         <title>{`${themeConfig.templateName} - Roping Event Management`}</title>
         <meta
@@ -69,6 +70,7 @@ const App = props => {
         </SettingsConsumer>
       </SettingsProvider>
     </CacheProvider>
+    
   )
 }
 

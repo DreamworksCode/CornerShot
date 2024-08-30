@@ -177,7 +177,7 @@ const Report = () => {
                     </Typography>
                   </Grid>
 
-                  <GetProductionReports />
+                  <GetProductionReports selectedPayoff={selectedPayoff} isChecked={isChecked} />
 
                   <Grid item xs={12}>
                     <Typography

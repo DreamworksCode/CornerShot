@@ -166,16 +166,40 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag,set
       console.log(data)
       setFlag(prev => !prev)
       try {
-        const response = await API.postAPICalling(`Teams/PickAndDraw_DrawPotteam`, data)
+        const response = await API.deleteAPICalling(`Teams/delete-drawteamsbyFlag/${selectedRopingId}`)
         console.log(response.data)
-        setMessage(response.message)
-        handleMessageOpen()
-        setDrawState('Complete')
+        try {
+          const response = await API.postAPICalling(`Teams/PickAndDraw_DrawPotteam`, data)
+          console.log(response.data)
+          setMessage(response.message)
+          handleMessageOpen()
+          setDrawState('Complete')
+        } catch (error) {
+          console.log('Some error:  ', error)
+          setMessage(error.message)
+          handleMessageOpen()
+          setDrawState('Incomplete')
+        }
       } catch (error) {
-        console.log('Some error:  ', error)
-        setMessage(error.message)
+        console.log('Some error:  ', error);
+        if(error.message==="Internal server error"){
+          setMessage("Cannot add anymore Teams as time is already added")
         handleMessageOpen()
-        setDrawState('Incomplete')
+        }
+        else {
+          try {
+            const response = await API.postAPICalling(`Teams/PickAndDraw_DrawPotteam`, data)
+            console.log(response.data)
+            setMessage(response.message)
+            handleMessageOpen()
+            setDrawState('Complete')
+          } catch (error) {
+            console.log('Some error:  ', error)
+            setMessage(error.message)
+            handleMessageOpen()
+            setDrawState('Incomplete')
+          }
+        }
       }
     }
   }
@@ -191,9 +215,15 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag,set
       setNumberOfTeams(null);
       setDrawState('Incomplete')
     } catch (error) {
-      console.log('Some error:  ', error)
-      setMessage(error.message)
+      console.log('Some error:  ', error);
+      if(error.message==="Internal server error"){
+        setMessage("Cannot delete Teams as time is already added")
       handleMessageOpen()
+      }
+      else{
+        setMessage(error.message)
+        handleMessageOpen()
+      }
     }
   }
 

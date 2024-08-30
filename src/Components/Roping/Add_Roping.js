@@ -72,7 +72,7 @@ const Add_Roping = ({ handleCheck }) => {
     round_to_handicap: null,
     amount_to_handicap: null,
     handicap_down_amount: null,
-    handicap_up_amount: null
+    handicap_up_amount: 0
   })
   const [open, setOpen] = React.useState(false)
   const handleOpen = () => setOpen(true)
@@ -513,24 +513,7 @@ const Add_Roping = ({ handleCheck }) => {
                             placeholder='00'
                           />
                         </Grid>
-                        <Grid item xs={6} sm={3}>
-                          <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
-                            Amount to Handicap
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={6} sm={3}>
-                          <TextField
-                            fullWidth
-                            type='number'
-                            onChange={handleRopingClassificationChange}
-                            inputProps={{ min: 0 }}
-                            required={isChecked}
-                            name='amount_to_handicap'
-                            value={ropingClassification.amount_to_handicap}
-                            // label='Phone No.'
-                            placeholder='00'
-                          />
-                        </Grid>
+                       
 
                         <Grid item xs={12}>
                           <Typography variant='body2' sx={{ fontWeight: 600 }}>
@@ -571,7 +554,7 @@ const Add_Roping = ({ handleCheck }) => {
                             placeholder='00'
                           />
                         </Grid> */}
-                        <Grid item xs={6} sm={3}>
+                        {/* <Grid item xs={6} sm={3}>
                           <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
                             Handicap up amount
                           </Typography>
@@ -585,6 +568,24 @@ const Add_Roping = ({ handleCheck }) => {
                             name='handicap_up_amount'
                             inputProps={{ min: 0 }}
                             value={ropingClassification.handicap_up_amount}
+                            // label='Phone No.'
+                            placeholder='00'
+                          />
+                        </Grid> */}
+                         <Grid item xs={6} sm={3}>
+                          <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
+                            Amount to Handicap
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={6} sm={3}>
+                          <TextField
+                            fullWidth
+                            type='number'
+                            onChange={handleRopingClassificationChange}
+                            inputProps={{ min: 0 }}
+                            required={isChecked}
+                            name='amount_to_handicap'
+                            value={ropingClassification.amount_to_handicap}
                             // label='Phone No.'
                             placeholder='00'
                           />

@@ -22,6 +22,10 @@ import Select from '@mui/material/Select'
 import { useEffect, useState } from 'react'
 import API from 'src/pages/api'
 import { useTheme } from '@mui/material/styles'
+import dynamic from 'next/dynamic';
+
+const html2pdf = dynamic(() => import('html2pdf.js'), { ssr: false });
+
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -44,7 +48,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   }
 }))
 
-const PayoffName = ({ setPayoffId, payoffId, isChecked,roping, individual, setSelectedPayoff }) => {
+const PayoffName = ({ setPayoffId, payoffId, isChecked, roping, individual, setSelectedPayoff }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const style = {
@@ -58,7 +62,7 @@ const PayoffName = ({ setPayoffId, payoffId, isChecked,roping, individual, setSe
     boxShadow: 24,
     p: 2,
     overflowY: 'auto',
-    maxHeight: 600,
+    maxHeight: 600
   }
 
   const [payoffs, setPayoffs] = useState([])
@@ -85,9 +89,9 @@ const PayoffName = ({ setPayoffId, payoffId, isChecked,roping, individual, setSe
     const id = localStorage.getItem('productinoId')
     try {
       const response = await API.getAPICalling(`payoffs/get?production_id=${id}`)
-      setPayoffs(response);
-      setPayoffId(response[0].payoff.id);
-      setSelectedPayoff(response[0]);
+      setPayoffs(response)
+      setPayoffId(response[0].payoff.id)
+      setSelectedPayoff(response[0])
       console.log(response)
     } catch (error) {
       console.log(error)
@@ -97,8 +101,8 @@ const PayoffName = ({ setPayoffId, payoffId, isChecked,roping, individual, setSe
   const handleChange = e => {
     const { value } = e.target
     setPayoffId(Number(value))
-    const filteredObject = payoffs.find(item => item.payoff.id === Number(value));
-    setSelectedPayoff(filteredObject);
+    const filteredObject = payoffs.find(item => item.payoff.id === Number(value))
+    setSelectedPayoff(filteredObject)
   }
 
   const handleSubmit = async () => {
@@ -119,6 +123,37 @@ const PayoffName = ({ setPayoffId, payoffId, isChecked,roping, individual, setSe
       }
     }
   }
+
+  // const downloadPayoffPDF = () => {
+  //   if(typeof window !== "undefined"){
+  //   const element = document.getElementById('payoffTable');
+  //   html2pdf()
+  //     .from(element)
+  //     .set({
+  //       margin: 1,
+  //       filename: 'payoffTable.pdf',
+  //       html2canvas: { scale: 2 },
+  //       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  //     })
+  //     .save()
+  //   }
+  // }
+
+  const downloadPayoffPDF = async () => {
+    if (typeof window !== "undefined") {
+      const html2pdf = (await import("html2pdf.js")).default;
+      const element = document.getElementById("payoffTable");
+      html2pdf()
+        .from(element)
+        .set({
+          margin: 1,
+          filename: "payoffTable.pdf",
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+        })
+        .save();
+    }
+  };
 
   return (
     <>
@@ -177,36 +212,47 @@ const PayoffName = ({ setPayoffId, payoffId, isChecked,roping, individual, setSe
         aria-describedby='modal-modal-description'
       >
         <Box sx={style}>
-          <Typography id='modal-modal-description' fontWeight="bold" sx={{ mt: 2, mb: 3, fontSize: '20px', textAlign:"center" }}>
-            {roping.name}
-          </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2, mb: 3, fontSize: '16px', textAlign:"center" }}>
-            Total Payoff:- {payoffData&&payoffData.finalTotalPayoff}
-          </Typography>
-          <Typography id='modal-modal-description' sx={{ mt: 2, mb: 3, fontSize: '16px', textAlign:"center" }}>
-            Stock Charge:- {payoffData&&payoffData.stockChargeValue}
-          </Typography>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 500 }} aria-label='customized table'>
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell align='center'>Team Position</StyledTableCell>
-                  <StyledTableCell align='center'>Amount ({individual?"Per Roper":"Per Team"})</StyledTableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {payoffData &&
-                  payoffData.distributedValues.map((data, index) => (
-                    <StyledTableRow key={index}>
-                      <StyledTableCell component='th' scope='row' align='center'>
-                        {index + 1}
-                      </StyledTableCell>
-                      <StyledTableCell align='center'>{individual?(isChecked?Math.ceil(data/2):data/2) :data}</StyledTableCell>
-                    </StyledTableRow>
-                  ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <div id='payoffTable'>
+            <Typography
+              id='modal-modal-description'
+              fontWeight='bold'
+              sx={{ mt: 2, mb: 3, fontSize: '20px', textAlign: 'center' }}
+            >
+              {roping.name}
+            </Typography>
+            <Typography id='modal-modal-description' sx={{ mt: 2, mb: 3, fontSize: '16px', textAlign: 'center' }}>
+              Total Payoff:- {payoffData && payoffData.finalTotalPayoff}
+            </Typography>
+            <Typography id='modal-modal-description' sx={{ mt: 2, mb: 3, fontSize: '16px', textAlign: 'center' }}>
+              Stock Charge:- {payoffData && payoffData.stockChargeValue}
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 500 }} aria-label='customized table'>
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell align='center'>Team Position</StyledTableCell>
+                    <StyledTableCell align='center'>Amount ({individual ? 'Per Roper' : 'Per Team'})</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {payoffData &&
+                    payoffData.distributedValues.map((data, index) => (
+                      <StyledTableRow key={index}>
+                        <StyledTableCell component='th' scope='row' align='center'>
+                          {index + 1}
+                        </StyledTableCell>
+                        <StyledTableCell align='center'>
+                          {individual ? (isChecked ? Math.ceil(data / 2) : data / 2) : data}
+                        </StyledTableCell>
+                      </StyledTableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+          <Button onClick={downloadPayoffPDF} type='button' variant='contained' size='medium'>
+            Download
+          </Button>
         </Box>
       </Modal>
     </>

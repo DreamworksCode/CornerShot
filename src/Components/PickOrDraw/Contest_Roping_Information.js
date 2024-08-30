@@ -32,7 +32,7 @@ import {
   useMediaQuery
 } from '@mui/material'
 import API from 'src/pages/api'
-import { useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles'
 
 // ** Icons Imports
 // import Phone from 'mdi-material-ui/Phone'
@@ -76,11 +76,9 @@ const rows = [
   createData(8, 'Tamim Iqbal', 'Liton Das')
 ]
 
-
-
 const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const style = {
     position: 'absolute',
     top: '50%',
@@ -98,8 +96,8 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
   const handleOpen = () => setOpen(true)
   const handleClose = () => setOpen(false)
   const [message, setMessage] = React.useState('')
-  const [messageOpen, setMessageOpen] = React.useState(false);
-  const [numberOfTeams,setNumberOfTeams]=React.useState(null);
+  const [messageOpen, setMessageOpen] = React.useState(false)
+  const [numberOfTeams, setNumberOfTeams] = React.useState(null)
   const handleMessageOpen = () => {
     setMessageOpen(true)
   }
@@ -133,64 +131,90 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
     } catch (error) {
       console.log('Some error:  ', error)
     }
-  }, [flag,selectedRopingId])
+  }, [flag, selectedRopingId])
 
   React.useEffect(async () => {
-    setDrawState("Processing");
+    setDrawState('Processing')
     try {
       const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_Or_Draw`)
       console.log(response.data)
-      setDrawState("Complete")
-      const len=response.length;
-      setNumberOfTeams(len);
-      setTeams(response);
+      setDrawState('Complete')
+      const len = response.length
+      setNumberOfTeams(len)
+      setTeams(response)
     } catch (error) {
       console.log('Some error:  ', error)
-      setDrawState("Incomplete");
-      setNumberOfTeams(null);
-      setTeams([]);
+      setDrawState('Incomplete')
+      setNumberOfTeams(null)
+      setTeams([])
     }
-  }, [selectedRopingId,flag])
+  }, [selectedRopingId, flag])
 
   const handleDrawTeamsButtonClick = async () => {
     if (participants.header === 0 || participants.healer === 0 || participants.header !== participants.healer) {
-      setMessage('The number of headers and healers should be same')
+      setMessage('The number of headers and healers should be same and greater than 0')
       handleMessageOpen()
-    } 
-     else {
+    } else {
       setDrawState('Processing')
       const data = {
         ropingId: selectedRopingId,
         classification: classification,
-        roping_team_type:"Pick_Or_Draw"
+        roping_team_type: 'Pick_Or_Draw'
       }
       console.log(data)
+      const data2 = {
+        roping_team_type: 'Pick_Or_Draw'
+      }
       try {
-        const response = await API.postAPICalling(`Teams/PickOrDraw_DrawPotTeams`, data)
-        console.log(response.data)
-        setMessage(response.message)
-        handleMessageOpen()
-        setDrawState('Complete')
+        const response2 = await API.deleteAPIWithoutToken(`Teams/delete-drawteams/${selectedRopingId}`, data2);
+        console.log(response2);
+        try {
+          const response = await API.postAPICalling(`Teams/PickOrDraw_DrawPotTeams`, data)
+          console.log(response.data)
+          setMessage(response.message)
+          handleMessageOpen()
+          setDrawState('Complete')
+        } catch (error) {
+          console.log('Some error:  ', error)
+          setMessage(error.message)
+          handleMessageOpen()
+          setDrawState('Incomplete')
+        }
       } catch (error) {
-        console.log('Some error:  ', error)
-        setMessage(error.message)
-        handleMessageOpen()
-        setDrawState('Incomplete')
+        console.log('Some error:  ', error);
+        if(error.message==="No teams with contestants in draw entries found for roping" || error.message==="No teams found for roping"){
+          try {
+            const response = await API.postAPICalling(`Teams/PickOrDraw_DrawPotTeams`, data)
+            console.log(response.data)
+            setMessage(response.message)
+            handleMessageOpen()
+            setDrawState('Complete')
+          } catch (error) {
+            console.log('Some error:  ', error)
+            setMessage(error.message)
+            handleMessageOpen()
+            setDrawState('Incomplete')
+          }
+        }
+        else{
+          setMessage(error.message)
+          handleMessageOpen()
+        }
       }
     }
   }
 
   const handleDeleteDrawButtonClick = async () => {
-    const data={
-      roping_team_type:"Pick_Or_Draw"
+    const data = {
+      roping_team_type: 'Pick_Or_Draw'
     }
     try {
-      const response = await API.deleteAPIWithoutToken(`Teams/delete-drawteams/${selectedRopingId}`,data)
+      const response = await API.deleteAPIWithoutToken(`Teams/delete-drawteams/${selectedRopingId}`, data)
       console.log(response.data)
       setTeams([])
       setMessage(response.message)
       handleMessageOpen()
-      setNumberOfTeams(null);
+      setNumberOfTeams(null)
       setDrawState('Incomplete')
     } catch (error) {
       console.log('Some error:  ', error)
@@ -201,12 +225,12 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
 
   const handleListTeamClick = async () => {
     try {
-      console.log("In list team :", selectedRopingId);
+      console.log('In list team :', selectedRopingId)
       const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_Or_Draw`)
       console.log(response)
       setTeams(response)
-      const len=response.length;
-      setNumberOfTeams(len);
+      const len = response.length
+      setNumberOfTeams(len)
       handleOpen()
     } catch (error) {
       console.log('Some error:  ', error)
@@ -301,7 +325,7 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
                 <TextField
                   fullWidth
                   type='number'
-                  value={numberOfTeams?numberOfTeams:""}
+                  value={numberOfTeams ? numberOfTeams : ''}
                   // label='Phone No.'
                   placeholder='00'
                 />

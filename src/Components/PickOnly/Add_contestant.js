@@ -222,8 +222,14 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
         handleMessageOpen();
       } catch (error) {
         console.log('Some error:  ', error)
-        setMessage(error.message);
-        handleMessageOpen();
+        if(error.message==="Internal server error"){
+          setMessage("Cannot delete Teams as time is already added");
+        handleMessageOpen()
+        }
+        else{
+          setMessage(error.message)
+          handleMessageOpen()
+        }
       }
     }
   }

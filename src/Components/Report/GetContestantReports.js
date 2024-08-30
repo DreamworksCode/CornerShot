@@ -1,6 +1,23 @@
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-import { Box, FormControl, InputLabel, MenuItem, Modal, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, styled, tableCellClasses, useMediaQuery } from '@mui/material'
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Modal,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  styled,
+  tableCellClasses,
+  useMediaQuery
+} from '@mui/material'
 import Select from '@mui/material/Select'
 import API from 'src/pages/api'
 import { useState } from 'react'
@@ -43,7 +60,7 @@ const GetContestantReports = () => {
     overflowY: 'auto',
     maxHeight: 600
   }
-  
+
   const [selectedType, setSelectedType] = useState(null)
   const [contestant, setContestant] = useState([])
 
@@ -56,11 +73,9 @@ const GetContestantReports = () => {
     setMessageOpen(false)
   }
 
-
-  const [emailOpen,setEmailOpen]=useState(false);
-  const handleEmailOpen=()=>setEmailOpen(true);
-  const handleEmailClose=()=>setEmailOpen(false);
-
+  const [emailOpen, setEmailOpen] = useState(false)
+  const handleEmailOpen = () => setEmailOpen(true)
+  const handleEmailClose = () => setEmailOpen(false)
 
   const handleChange = e => {
     const { value } = e.target
@@ -73,19 +88,36 @@ const GetContestantReports = () => {
       try {
         const response = await API.getAPICalling('contestant', token)
         setContestant(response.data)
-        handleEmailOpen();
+        handleEmailOpen()
         // console.log(response.data)
       } catch (error) {
         console.log('Some error occured', error)
       }
     } else if (selectedType === 2) {
-      setMessage("Right now we dont have any operation for this event :)");
-      handleMessageOpen();
+      setMessage('Right now we dont have any operation for this event :)')
+      handleMessageOpen()
     } else {
-      setMessage('Please select an option first');
-      handleMessageOpen();
+      setMessage('Please select an option first')
+      handleMessageOpen()
     }
   }
+
+  const downloadContestantEmailPDF = async () => {
+    if (typeof window !== 'undefined') {
+      const html2pdf = (await import('html2pdf.js')).default
+      const element = document.getElementById('contestantEmailTable')
+      html2pdf()
+        .from(element)
+        .set({
+          margin: 1,
+          filename: 'contestantEmail.pdf',
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        })
+        .save()
+    }
+  }
+
   return (
     <>
       <Grid item xs={6} sm={2}>
@@ -131,7 +163,6 @@ const GetContestantReports = () => {
         </Box>
       </Modal>
 
-
       {/* Modal for Draw Entries  */}
       <Modal
         open={emailOpen}
@@ -140,26 +171,31 @@ const GetContestantReports = () => {
         aria-describedby='modal-modal-description'
       >
         <Box sx={style}>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 500 }} aria-label='customized table'>
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell align='center'>Name</StyledTableCell>
-                  <StyledTableCell align='center'>Email</StyledTableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {contestant.map((person, index) => (
-                  <StyledTableRow key={index}>
-                    <StyledTableCell component='th' scope='row' align='center'>
-                      {person.name}
-                    </StyledTableCell>
-                    <StyledTableCell align='center'>{person.email}</StyledTableCell>
-                  </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <div id='contestantEmailTable'>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 500 }} aria-label='customized table'>
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell align='center'>Name</StyledTableCell>
+                    <StyledTableCell align='center'>Email</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {contestant.map((person, index) => (
+                    <StyledTableRow key={index}>
+                      <StyledTableCell component='th' scope='row' align='center'>
+                        {person.name}
+                      </StyledTableCell>
+                      <StyledTableCell align='center'>{person.email}</StyledTableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+          <Button onClick={downloadContestantEmailPDF} type='button' variant='contained' size='medium'>
+            Downlaod
+          </Button>
         </Box>
       </Modal>
     </>
