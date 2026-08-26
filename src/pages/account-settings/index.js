@@ -46,6 +46,7 @@ const AccountSettings = () => {
   const [value, setValue] = useState('account')
 
   const handleChange = (event, newValue) => {
+    console.log(newValue);
     setValue(newValue)
   }
 
