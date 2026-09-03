@@ -27,6 +27,7 @@ const formApi=axios.create({
 
 const setAuthToken = (token) => {
   if (token) {
+    console.log("TOken saved");
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   } else {
     delete api.defaults.headers.common['Authorization'];
