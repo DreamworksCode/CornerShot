@@ -158,7 +158,8 @@ const Roping_information = ({check}) => {
   }
 
   useEffect(async () => {
-    const productionId = localStorage.getItem('productinoId')
+  const productionId = parseInt(localStorage.getItem('productinoId'), 10)
+    console.log('productionId here in get:  ', productionId)
     try {
       const response = await API.getAPICalling(`ropings/getnames/${productionId}`)
       console.log(response)

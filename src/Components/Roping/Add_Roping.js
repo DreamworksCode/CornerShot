@@ -86,6 +86,9 @@ const Add_Roping = ({ handleCheck }) => {
     setMessageOpen(false)
   }
 
+  const productionId = localStorage.getItem('productinoId')
+    console.log('Production ID:', productionId);
+
   const handleRopingChange = e => {
     setRoping({ ...roping, [e.target.name]: e.target.value })
     if (e.target.name === 'type') {
@@ -127,61 +130,90 @@ const Add_Roping = ({ handleCheck }) => {
   }
 
   const handleSubmit = async e => {
-    e.preventDefault()
-    const productionId = localStorage.getItem('productinoId')
-    const withoutClassificationData = {
-      productionId,
-      roping,
-      ropingRules,
-      ropingFinancials
-    }
-    const withClassificationData = {
-      productionId,
-      roping,
-      ropingRules,
-      ropingFinancials,
-      ropingClassification
-    }
-    setRoping({ name: '', type: '', draw_count: null, max_entries_per_roper: null, num_rounds: null })
+  e.preventDefault()
+  const productionId = parseInt(localStorage.getItem('productinoId'), 10)
+  console.log('Production ID:', productionId)
 
-    setRopingRules({ progressive_after_round: null, barrier_penalty: null, leg_penalty: null, classification: null })
+  // helper: converts a value to an integer, or null if empty/unset
+  const toInt = val => (val !== null && val !== '' && val !== undefined ? parseInt(val, 10) : null)
 
-    setRopingFinancials({
-      entry_fees: null,
-      stock_charge_percent: null,
-      association_fees: null,
-      price_deduction: null,
-      added_money: null
-    })
-
-    setRopingClassification({
-      round_to_handicap: null,
-      amount_to_handicap: null,
-      handicap_down_amount: null,
-      handicap_up_amount: null
-    })
-
-    setDisabled(false)
-
-    // setRoping
-
-    const data = isChecked ? withClassificationData : withoutClassificationData
-    // setMessage("GHeyyy");
-    // handleMessageOpen();
-    try {
-      const response = await API.postAPICalling('ropings/create', data)
-      console.log(response)
-      setMessage('Roping Added Successfully')
-      handleCheck()
-      handleClose()
-      handleMessageOpen()
-    } catch (error) {
-      console.log('Some error:  ', error)
-      setMessage(error.message)
-      handleClose()
-      handleMessageOpen()
-    }
+  const parsedRoping = {
+    ...roping,
+    draw_count: toInt(roping.draw_count),
+    max_entries_per_roper: toInt(roping.max_entries_per_roper),
+    num_rounds: toInt(roping.num_rounds)
   }
+
+  const parsedRopingRules = {
+    progressive_after_round: toInt(ropingRules.progressive_after_round),
+    barrier_penalty: toInt(ropingRules.barrier_penalty),
+    leg_penalty: toInt(ropingRules.leg_penalty),
+    classification: toInt(ropingRules.classification)
+  }
+
+  const parsedRopingFinancials = {
+    entry_fees: toInt(ropingFinancials.entry_fees),
+    stock_charge_percent: toInt(ropingFinancials.stock_charge_percent),
+    association_fees: toInt(ropingFinancials.association_fees),
+    price_deduction: toInt(ropingFinancials.price_deduction),
+    added_money: toInt(ropingFinancials.added_money)
+  }
+
+  const parsedRopingClassification = {
+    round_to_handicap: toInt(ropingClassification.round_to_handicap),
+    amount_to_handicap: toInt(ropingClassification.amount_to_handicap),
+    handicap_down_amount: toInt(ropingClassification.handicap_down_amount),
+    handicap_up_amount: toInt(ropingClassification.handicap_up_amount)
+  }
+
+  const withoutClassificationData = {
+    productionId,
+    roping: parsedRoping,
+    ropingRules: parsedRopingRules,
+    ropingFinancials: parsedRopingFinancials
+  }
+  const withClassificationData = {
+    productionId,
+    roping: parsedRoping,
+    ropingRules: parsedRopingRules,
+    ropingFinancials: parsedRopingFinancials,
+    ropingClassification: parsedRopingClassification
+  }
+
+  setRoping({ name: '', type: '', draw_count: null, max_entries_per_roper: null, num_rounds: null })
+  setRopingRules({ progressive_after_round: null, barrier_penalty: null, leg_penalty: null, classification: null })
+  setRopingFinancials({
+    entry_fees: null,
+    stock_charge_percent: null,
+    association_fees: null,
+    price_deduction: null,
+    added_money: null
+  })
+  setRopingClassification({
+    round_to_handicap: null,
+    amount_to_handicap: null,
+    handicap_down_amount: null,
+    handicap_up_amount: null
+  })
+  setDisabled(false)
+
+  const data = isChecked ? withClassificationData : withoutClassificationData
+  console.log(data)
+
+  try {
+    const response = await API.postAPICalling('ropings/create', data)
+    console.log(response)
+    setMessage('Roping Added Successfully')
+    handleCheck()
+    handleClose()
+    handleMessageOpen()
+  } catch (error) {
+    console.log('Some error:  ', error)
+    setMessage(error.message)
+    handleClose()
+    handleMessageOpen()
+  }
+}
 
   const handleDrawChange = event => {
     const selectedValue = event.target.value
