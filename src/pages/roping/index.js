@@ -16,7 +16,9 @@ const RopingInformation = () => {
 
 
     async function fetchData() {
-      const item = localStorage.getItem('token');
+      const item =   typeof window !== "undefined"
+    ? localStorage.getItem("token")
+    : null;
       
       if (item === null) {
         router.push("/pages/login");
