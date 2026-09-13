@@ -73,7 +73,7 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
   const handleMessageClose = () => setMessageOpen(false)
   const [message, setMessage] = useState('')
   const [selectedId, setSelectedId] = useState(false)
-  const [times, setTimes] = useState({ time: null, total_time: null })
+  const [times, setTimes] = useState({ time: null })
   const [legPenalty, setLegPenalty] = useState(false)
   const [barrierPenalty, setBarrierPenalty] = useState(false)
 
@@ -121,41 +121,18 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
   }
 
   const handleChange = e => {
-    const { name, value } = e.target
+    const { value } = e.target
     setTimes({
-      time: Number(value),
-      total_time: Number(value)
+      time: Number(value)
     })
   }
 
   const legChange = e => {
     setLegPenalty(e.target.checked)
-    if (e.target.checked) {
-      setTimes({
-        time: times.time,
-        total_time: times.total_time + 10
-      })
-    } else {
-      setTimes({
-        time: times.time,
-        total_time: times.total_time - 10
-      })
-    }
   }
 
   const barrierChange = e => {
     setBarrierPenalty(e.target.checked)
-    if (e.target.checked) {
-      setTimes({
-        time: times.time,
-        total_time: times.total_time + 5
-      })
-    } else {
-      setTimes({
-        time: times.time,
-        total_time: times.total_time - 5
-      })
-    }
   }
 
   const addTimeCalled = async () => {
@@ -168,9 +145,9 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
         team_id: selectedId,
         roping_id: selectedRopingId,
         round_number: round,
-        current_time: times.total_time,
-        barrier_penalty: barrierPenalty ? 1 : 0,
-        leg_penalty: legPenalty ? 1 : 0
+        raw_time: times.time,
+        broke_barrier: barrierPenalty,
+        caught_one_leg: legPenalty
       }
       try {
         const response = await API.postAPICalling('Team-Times/Add_Time', data)
@@ -186,8 +163,7 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
       }
     }
     setTimes({
-      time: null,
-      total_time: null
+      time: null
     })
     setLegPenalty(false)
     setBarrierPenalty(false)
@@ -293,24 +269,6 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
                         <Checkbox inputProps={{ 'aria-label': 'checkbox' }} checked={legPenalty} onChange={legChange} />
                       }
                       label='Leg Penalty'
-                    />
-                  </Grid>
-                  <Grid item xs={6} sm={4}>
-                    <Typography
-                      variant='body2'
-                      sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'center', paddingTop: '15px' }}
-                    >
-                      Total Time Taken
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6} sm={8}>
-                    <TextField
-                      required
-                      fullWidth
-                      type='number'
-                      name='total_time'
-                      value={times.total_time && times.total_time}
-                      placeholder='00'
                     />
                   </Grid>
                   <Grid item xs={12}>

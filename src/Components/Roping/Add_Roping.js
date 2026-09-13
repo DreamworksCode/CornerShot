@@ -137,6 +137,9 @@ const Add_Roping = ({ handleCheck }) => {
   // helper: converts a value to an integer, or null if empty/unset
   const toInt = val => (val !== null && val !== '' && val !== undefined ? parseInt(val, 10) : null)
 
+  // stock_charge_percent now accepts decimals (e.g. 10.5) - do not truncate to int
+  const toFloat = val => (val !== null && val !== '' && val !== undefined ? parseFloat(val) : null)
+
   const parsedRoping = {
     ...roping,
     draw_count: toInt(roping.draw_count),
@@ -153,7 +156,7 @@ const Add_Roping = ({ handleCheck }) => {
 
   const parsedRopingFinancials = {
     entry_fees: toInt(ropingFinancials.entry_fees),
-    stock_charge_percent: toInt(ropingFinancials.stock_charge_percent),
+    stock_charge_percent: toFloat(ropingFinancials.stock_charge_percent),
     association_fees: toInt(ropingFinancials.association_fees),
     price_deduction: toInt(ropingFinancials.price_deduction),
     added_money: toInt(ropingFinancials.added_money)
@@ -378,7 +381,7 @@ const Add_Roping = ({ handleCheck }) => {
                         fullWidth
                         type='number'
                         onChange={handleRopingFinancialsChange}
-                        inputProps={{ min: 0 }}
+                        inputProps={{ min: 0, step: 0.1 }}
                         required
                         name='stock_charge_percent'
                         value={ropingFinancials.stock_charge_percent}

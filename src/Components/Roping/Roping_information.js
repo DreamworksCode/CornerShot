@@ -365,7 +365,8 @@ const Roping_information = ({check}) => {
               <TextField
                 fullWidth
                 type='number'
-                onChange={handleRopingFinancialsChange}inputProps={{ min: 0 }}
+                onChange={handleRopingFinancialsChange}
+                inputProps={{ min: 0, step: 0.1 }}
                 required
                 name='stock_charge_percent'
                 value={ropingFinancials.stock_charge_percent}
