@@ -347,7 +347,19 @@ const GetProductionReports = ({ selectedPayoff, isChecked }) => {
                         <TableCell align='center'>
                           {' '}
                           <Typography fontSize='14px' fontWeight='600'>
-                            Winnings
+                            Team Winnings
+                          </Typography>
+                        </TableCell>
+                        <TableCell align='center'>
+                          {' '}
+                          <Typography fontSize='14px' fontWeight='600'>
+                            Header Payout
+                          </Typography>
+                        </TableCell>
+                        <TableCell align='center'>
+                          {' '}
+                          <Typography fontSize='14px' fontWeight='600'>
+                            Healer Payout
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -371,6 +383,12 @@ const GetProductionReports = ({ selectedPayoff, isChecked }) => {
                           </TableCell>
                           <TableCell align='center'>
                             <Typography>{winningTeams.winningAmount}</Typography>
+                          </TableCell>
+                          <TableCell align='center'>
+                            <Typography>{winningTeams.headerPayout}</Typography>
+                          </TableCell>
+                          <TableCell align='center'>
+                            <Typography>{winningTeams.healerPayout}</Typography>
                           </TableCell>
                         </TableRow>
                       ))}

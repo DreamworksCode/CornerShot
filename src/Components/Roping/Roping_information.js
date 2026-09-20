@@ -47,7 +47,9 @@ const Roping_information = ({check}) => {
     type: "",
     draw_count: null,
     max_entries_per_roper: null,
-    num_rounds: null
+    num_rounds: null,
+    teams_in_short_round: 20,
+    short_round_sort_order: 'SLOW_TO_FAST'
   })
   const [ropingRules, setRopingRules] = React.useState({
     progressive_after_round: null,
@@ -60,13 +62,16 @@ const Roping_information = ({check}) => {
     stock_charge_percent: null,
     association_fees: null,
     price_deduction: null,
-    added_money: null
+    added_money: null,
+    payback_percent: null
   })
   const [ropingClassification, setRopingClassification] = React.useState({
-    round_to_handicap: null,
-    amount_to_handicap: null,
-    handicap_down_amount: null,
-    handicap_up_amount: 0
+    baseline_team_rating: null,
+    rating_adjustment_factor: null,
+    max_seconds_deducted: null,
+    max_seconds_added: null,
+    handicap_rating_floor: null,
+    slide_rating_ceiling: null
   })
   const [message, setMessage] = React.useState('')
   const [messageOpen, setMessageOpen] = React.useState(false)
@@ -103,7 +108,9 @@ const Roping_information = ({check}) => {
           type: response.roping.type,
           draw_count: response.roping.draw_count,
           max_entries_per_roper: response.roping.max_entries_per_roper,
-          num_rounds: response.roping.num_rounds
+          num_rounds: response.roping.num_rounds,
+          teams_in_short_round: response.roping.teams_in_short_round,
+          short_round_sort_order: response.roping.short_round_sort_order
         })
         setRopingRules(response.roping.ropingRules)
         setRopingFinancials(response.roping.ropingFinancials)
@@ -191,7 +198,14 @@ const Roping_information = ({check}) => {
         roping,
         ropingRules,
         ropingFinancials,
-        ropingClassification
+        ropingClassification: {
+          // legacy fields - backend still requires these as integers even though they're no longer used in any calculation
+          round_to_handicap: 0,
+          amount_to_handicap: 0,
+          handicap_down_amount: 0,
+          handicap_up_amount: 0,
+          ...ropingClassification
+        }
       }
       // setRoping({
       // type: '',
@@ -345,6 +359,40 @@ const Roping_information = ({check}) => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
+                Teams in Short Round
+              </Typography>
+              <TextField
+                fullWidth
+                type='number'
+                onChange={handleRopingChange}
+                inputProps={{ min: 0 }}
+                required
+                name='teams_in_short_round'
+                value={roping.teams_in_short_round}
+                placeholder='20'
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
+                Short Round Running Order
+              </Typography>
+              <FormControl fullWidth>
+                <InputLabel id='short-round-sort-order-label'>Order</InputLabel>
+                <Select
+                  onChange={handleRopingChange}
+                  name='short_round_sort_order'
+                  value={roping.short_round_sort_order}
+                  label='Order'
+                  id='short-round-sort-order'
+                  labelId='short-round-sort-order-label'
+                >
+                  <MenuItem value='SLOW_TO_FAST'>Slow to Fast</MenuItem>
+                  <MenuItem value='FAST_TO_SLOW'>Fast to Slow</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
                 Entry Fee(Individual)
               </Typography>
               <TextField
@@ -416,6 +464,21 @@ const Roping_information = ({check}) => {
                 required
                 value={ropingFinancials.added_money}
                 // label='Phone No.'
+                placeholder='00'
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
+                Payback %
+              </Typography>
+              <TextField
+                fullWidth
+                type='number'
+                name='payback_percent'
+                onChange={handleRopingFinancialsChange}
+                inputProps={{ min: 0, step: 0.1 }}
+                required
+                value={ropingFinancials.payback_percent}
                 placeholder='00'
               />
             </Grid>
@@ -502,110 +565,96 @@ const Roping_information = ({check}) => {
             </Grid>
             {isChecked && (
               <>
-                <Grid item xs={6} sm={3}>
-                  <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
-                    Round to Handicap
+                <Grid item xs={12} sm={6}>
+                  <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
+                    Baseline Team Rating
                   </Typography>
-                </Grid>
-                <Grid item xs={6} sm={3}>
                   <TextField
                     fullWidth
                     type='number'
-                    required={isChecked}inputProps={{ min: 0 }}
-                    name='round_to_handicap'
+                    required={isChecked}
+                    inputProps={{ min: 0, step: 0.1 }}
+                    name='baseline_team_rating'
                     onChange={handleRopingClassificationChange}
-                    value={ropingClassification&&ropingClassification.round_to_handicap}
-                    // label='Phone No.'
+                    value={ropingClassification&&ropingClassification.baseline_team_rating}
                     placeholder='00'
                   />
                 </Grid>
-               
-
-                <Grid item xs={12}>
-                  <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                    Amount to handicap per number in seconds
+                <Grid item xs={12} sm={6}>
+                  <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
+                    Rating Adjustment Factor
                   </Typography>
-                </Grid>
-                <Grid item xs={6} sm={3}>
-                  <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
-                    Handicap down amount
-                  </Typography>
-                </Grid>
-                <Grid item xs={6} sm={3}>
                   <TextField
                     fullWidth
                     type='number'
                     required={isChecked}
-                    name='handicap_down_amount'inputProps={{ min: 0 }}
+                    inputProps={{ min: 0, step: 0.1 }}
+                    name='rating_adjustment_factor'
                     onChange={handleRopingClassificationChange}
-                    value={ropingClassification&&ropingClassification.handicap_down_amount}
-                    // label='Phone No.'
+                    value={ropingClassification&&ropingClassification.rating_adjustment_factor}
                     placeholder='00'
                   />
                 </Grid>
-                {/* <Grid item xs={6} sm={3}>
-                          <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
-                            Maximum amount
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={6} sm={3}>
-                          <TextField
-                            fullWidth
-                            type='number'
-                            onChange={handleRopingClassificationChange}
-                            name='amount_to_handicap'
-                            value={ropingClassification.amount_to_handicap}
-                            // label='Phone No.'
-                            placeholder='00'
-                          />
-                        </Grid> */}
-                {/* <Grid item xs={6} sm={3}>
-                  <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
-                    Handicap up amount
+                <Grid item xs={12} sm={6}>
+                  <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
+                    Max Seconds Deducted
                   </Typography>
-                </Grid>
-                <Grid item xs={6} sm={3}>
                   <TextField
                     fullWidth
                     type='number'
                     required={isChecked}
-                    name='handicap_up_amount'
-                    onChange={handleRopingClassificationChange}inputProps={{ min: 0 }}
-                    value={ropingClassification&&ropingClassification.handicap_up_amount}
-                    // label='Phone No.'
+                    inputProps={{ min: 0, step: 0.1 }}
+                    name='max_seconds_deducted'
+                    onChange={handleRopingClassificationChange}
+                    value={ropingClassification&&ropingClassification.max_seconds_deducted}
                     placeholder='00'
                   />
-                </Grid> */}
-                 <Grid item xs={6} sm={3}>
-                  <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
-                    Amount to Handicap
-                  </Typography>
                 </Grid>
-                <Grid item xs={6} sm={3}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
+                    Max Seconds Added
+                  </Typography>
                   <TextField
                     fullWidth
                     type='number'
                     required={isChecked}
-                    name='amount_to_handicap'
-                    onChange={handleRopingClassificationChange}inputProps={{ min: 0 }}
-                    value={ropingClassification&&ropingClassification.amount_to_handicap}
-                    // label='Phone No.'
+                    inputProps={{ min: 0, step: 0.1 }}
+                    name='max_seconds_added'
+                    onChange={handleRopingClassificationChange}
+                    value={ropingClassification&&ropingClassification.max_seconds_added}
                     placeholder='00'
                   />
                 </Grid>
-                {/* <Grid item xs={6} sm={3}>
-                          <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
-                            Minimum amount
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={6} sm={3}>
-                          <TextField
-                            fullWidth
-                            type='number'
-                            // label='Phone No.'
-                            placeholder='00'
-                          />
-                        </Grid> */}
+                <Grid item xs={12} sm={6}>
+                  <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
+                    Handicap Rating Floor
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    type='number'
+                    required={isChecked}
+                    inputProps={{ min: 0, step: 0.1 }}
+                    name='handicap_rating_floor'
+                    onChange={handleRopingClassificationChange}
+                    value={ropingClassification&&ropingClassification.handicap_rating_floor}
+                    placeholder='00'
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
+                    Slide Rating Ceiling
+                  </Typography>
+                  <TextField
+                    fullWidth
+                    type='number'
+                    required={isChecked}
+                    inputProps={{ min: 0, step: 0.1 }}
+                    name='slide_rating_ceiling'
+                    onChange={handleRopingClassificationChange}
+                    value={ropingClassification&&ropingClassification.slide_rating_ceiling}
+                    placeholder='00'
+                  />
+                </Grid>
               </>
             )}
             {/* <Grid item xs={12}>

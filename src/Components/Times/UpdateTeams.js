@@ -72,6 +72,7 @@ const UpdateTeams = ({ teamsForUpdate, leg, barrier,setFlag }) => {
   const [times,setTimes]=useState({time:null});
   const [legPenalty,setLegPenalty]=useState(false);
   const [barrierPenalty,setBarrierPenalty]=useState(false);
+  const [isNoTime,setIsNoTime]=useState(false);
 
 
 
@@ -84,6 +85,7 @@ const UpdateTeams = ({ teamsForUpdate, leg, barrier,setFlag }) => {
     });
     setLegPenalty(!!selectedObject[0].leg_penalty)
     setBarrierPenalty(!!selectedObject[0].barrier_penalty)
+    setIsNoTime(!!selectedObject[0].is_no_time)
     setSelectedId(id);
     handleOpen();
   }
@@ -104,15 +106,20 @@ const UpdateTeams = ({ teamsForUpdate, leg, barrier,setFlag }) => {
     setBarrierPenalty(e.target.checked)
   }
 
+  const noTimeChange=(e)=>{
+    setIsNoTime(e.target.checked)
+  }
+
   const addTimeCalled=async ()=>{
-    if(times.time===null){
+    if(times.time===null && !isNoTime){
       alert("please put some value first");
     }
     else{
       const data={
-        raw_time: times.time,
+        raw_time: isNoTime ? 0 : times.time,
         broke_barrier: barrierPenalty,
-        caught_one_leg: legPenalty
+        caught_one_leg: legPenalty,
+        is_no_time: isNoTime
       }
       try {
         const response=await API.putAPICalling(`Team-Times/update-time/${selectedId}`,data);
@@ -128,6 +135,7 @@ const UpdateTeams = ({ teamsForUpdate, leg, barrier,setFlag }) => {
     });
     setLegPenalty(false);
     setBarrierPenalty(false);
+    setIsNoTime(false);
     handleClose();
   }
 
@@ -236,6 +244,18 @@ const UpdateTeams = ({ teamsForUpdate, leg, barrier,setFlag }) => {
                         />
                       }
                       label='Leg Penalty'
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} sx={{textAlign:"center"}}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          inputProps={{ 'aria-label': 'checkbox' }}
+                          checked={isNoTime}
+                          onChange={noTimeChange}
+                        />
+                      }
+                      label='No Time (NT)'
                     />
                   </Grid>
                   <Grid item xs={12}>

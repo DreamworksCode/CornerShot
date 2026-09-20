@@ -50,10 +50,12 @@ const UpdatePayoff = ({ check, flag }) => {
   const [payoffs, setPayoffs] = useState([])
   const [selectedPayoff, setSelectedPayoff] = useState({
     id: null,
-    places_to_pay: null,
-    pot_percentage: null
+    places_to_pay: null
   })
   const [percentageArray, setPercentageArray] = useState([])
+
+  const [splitsOpen, setSplitsOpen] = useState(false)
+  const [payoutSplits, setPayoutSplits] = useState([])
 
   const [listOpen, setListOpen] = React.useState(false)
   const [message, setMessage] = React.useState('')
@@ -83,8 +85,61 @@ const UpdatePayoff = ({ check, flag }) => {
       console.log(object)
       setSelectedPayoff(object.payoff)
       setPercentageArray(object.distribution)
+      setPayoutSplits([])
+      setSplitsOpen(false)
     } else {
         setSelectedPayoff({ ...selectedPayoff, [name]: Number(value) })
+    }
+  }
+
+  const handleLoadSplits = async () => {
+    if (selectedPayoff.id === null) {
+      setMessage('Please select a payoff first')
+      handleMessageOpen()
+
+      return
+    }
+    if (!selectedPayoff.places_to_pay || selectedPayoff.places_to_pay <= 0) {
+      setMessage('Set "Number of places to pay" first, then configure the splits')
+      handleMessageOpen()
+
+      return
+    }
+    const blankSplits = Array.from({ length: selectedPayoff.places_to_pay }, (_, i) => ({
+      place_number: i + 1,
+      payout_percentage: ''
+    }))
+    try {
+      const response = await API.getAPICalling(`payoffs/${selectedPayoff.id}/splits`)
+      const existing = response || []
+      if (existing.length === selectedPayoff.places_to_pay) {
+        setPayoutSplits(
+          existing.map(row => ({ place_number: row.place_number, payout_percentage: row.payout_percentage }))
+        )
+      } else {
+        // number of places to pay has changed since splits were last saved (or none saved yet) - start fresh
+        setPayoutSplits(blankSplits)
+      }
+    } catch (error) {
+      setPayoutSplits(blankSplits)
+    }
+    setSplitsOpen(true)
+  }
+
+  const handleSplitPercentageChange = (index, value) => {
+    const updated = [...payoutSplits]
+    updated[index] = { ...updated[index], payout_percentage: value === '' ? '' : Number(value) }
+    setPayoutSplits(updated)
+  }
+
+  const handleSaveSplits = async () => {
+    try {
+      const response = await API.putAPICalling(`payoffs/${selectedPayoff.id}/splits`, { splits: payoutSplits })
+      setMessage(response.message || 'Splits saved successfully')
+      handleMessageOpen()
+    } catch (error) {
+      setMessage(error.message)
+      handleMessageOpen()
     }
   }
 
@@ -109,14 +164,13 @@ const UpdatePayoff = ({ check, flag }) => {
 
   const handleSubmit = async e => {
     e.preventDefault()
-    if (selectedPayoff.places_to_pay <= 0 || selectedPayoff.pot_percentage <= 0) {
+    if (selectedPayoff.places_to_pay <= 0) {
       setMessage('Values cannot be empty')
       handleMessageOpen()
     } else {
       const id = localStorage.getItem('productinoId');
       const data={
-        places_to_pay: selectedPayoff.places_to_pay,
-        pot_percentage: selectedPayoff.pot_percentage
+        places_to_pay: selectedPayoff.places_to_pay
       }
       try {
         const response = await API.putAPICalling(`payoffs/update/${selectedPayoff.id}/${id}`,data)
@@ -163,7 +217,7 @@ const UpdatePayoff = ({ check, flag }) => {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12}>
                 <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
                   Number of places to pay
                 </Typography>
@@ -173,22 +227,8 @@ const UpdatePayoff = ({ check, flag }) => {
                   value={selectedPayoff.places_to_pay}
                   onChange={handleChange}
                   required
-                  inputProps={{ min: 0 }} 
+                  inputProps={{ min: 0 }}
                   name='places_to_pay'
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
-                  Pot Percentage
-                </Typography>
-                <TextField
-                  fullWidth
-                  type='number'
-                  required
-                  value={selectedPayoff.pot_percentage}
-                  onChange={handleChange}
-                  name='pot_percentage'
-                  placeholder='00'
                 />
               </Grid>
               <Grid
@@ -222,6 +262,55 @@ const UpdatePayoff = ({ check, flag }) => {
                     </TableBody>
                   </Table>
                 </TableContainer>
+              )}
+              <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                <Button disabled={selectedPayoff.id===null} onClick={handleLoadSplits} type='button' variant='contained' size='large'>
+                  Configure Payout Splits
+                </Button>
+              </Grid>
+              {splitsOpen && (
+                <>
+                  <TableContainer component={Paper}>
+                    <Table sx={{ miaxWidth: 550 }} size='small' aria-label='a dense table'>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell align='center'>Place</TableCell>
+                          <TableCell align='center'>Payout Percentage</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {payoutSplits.map((split, index) => (
+                          <TableRow key={index} sx={{ '&:last-of-type  td, &:last-of-type  th': { border: 0 } }}>
+                            <TableCell align='center' component='th' scope='row'>
+                              {split.place_number}
+                            </TableCell>
+                            <TableCell align='center'>
+                              <TextField
+                                type='number'
+                                size='small'
+                                inputProps={{ min: 0 }}
+                                value={split.payout_percentage}
+                                onChange={e => handleSplitPercentageChange(index, e.target.value)}
+                                placeholder='00'
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                  <Grid item xs={12} sx={{ textAlign: 'center', marginTop: '10px' }}>
+                    <Typography variant='body2' sx={{ fontWeight: 600 }}>
+                      Total: {payoutSplits.reduce((sum, s) => sum + (Number(s.payout_percentage) || 0), 0)}%
+                      (must equal 100%)
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                    <Button onClick={handleSaveSplits} type='button' variant='contained' size='large'>
+                      Save Splits
+                    </Button>
+                  </Grid>
+                </>
               )}
               <Grid item xs={12} sm={listOpen ? 6 : 3} sx={{ textAlign: 'center' }}>
                 <Button disabled={selectedPayoff.id===null?true:false} type='submit' variant='contained' size='large'>

@@ -76,6 +76,7 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
   const [times, setTimes] = useState({ time: null })
   const [legPenalty, setLegPenalty] = useState(false)
   const [barrierPenalty, setBarrierPenalty] = useState(false)
+  const [isNoTime, setIsNoTime] = useState(false)
 
   useEffect(() => {
     console.log("UseEffect in GetTeams for round number ", round);
@@ -135,8 +136,12 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
     setBarrierPenalty(e.target.checked)
   }
 
+  const noTimeChange = e => {
+    setIsNoTime(e.target.checked)
+  }
+
   const addTimeCalled = async () => {
-    if (times.time === null) {
+    if (times.time === null && !isNoTime) {
       // alert("please put some value first");
       setMessage('Time cannot be null. please enter a value')
       handleMessageOpen()
@@ -145,9 +150,10 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
         team_id: selectedId,
         roping_id: selectedRopingId,
         round_number: round,
-        raw_time: times.time,
+        raw_time: isNoTime ? 0 : times.time,
         broke_barrier: barrierPenalty,
-        caught_one_leg: legPenalty
+        caught_one_leg: legPenalty,
+        is_no_time: isNoTime
       }
       try {
         const response = await API.postAPICalling('Team-Times/Add_Time', data)
@@ -167,6 +173,7 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
     })
     setLegPenalty(false)
     setBarrierPenalty(false)
+    setIsNoTime(false)
     handleClose()
   }
 
@@ -269,6 +276,14 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
                         <Checkbox inputProps={{ 'aria-label': 'checkbox' }} checked={legPenalty} onChange={legChange} />
                       }
                       label='Leg Penalty'
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} sx={{ textAlign: 'center' }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox inputProps={{ 'aria-label': 'checkbox' }} checked={isNoTime} onChange={noTimeChange} />
+                      }
+                      label='No Time (NT)'
                     />
                   </Grid>
                   <Grid item xs={12}>

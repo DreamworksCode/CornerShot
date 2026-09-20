@@ -30,8 +30,7 @@ const AddPayoff = ({ handleCheck, setFlag }) => {
 
   const [inputValues, setInputValues] = React.useState({
     payoff_name: '',
-    places_to_pay: null,
-    pot_percentage: null
+    places_to_pay: null
   })
 
   const [open, setOpen] = React.useState(false)
@@ -66,8 +65,7 @@ const AddPayoff = ({ handleCheck, setFlag }) => {
     e.preventDefault()
     if (
       inputValues.payoff_name === 'null' ||
-      inputValues.places_to_pay === null ||
-      inputValues.pot_percentage === null
+      inputValues.places_to_pay === null
     ) {
       setMessage('Fields cannot be null')
       handleMessageOpen()
@@ -75,12 +73,12 @@ const AddPayoff = ({ handleCheck, setFlag }) => {
       const data = {
         payoff_name: inputValues.payoff_name,
         places_to_pay: inputValues.places_to_pay,
-        pot_percentage: inputValues.pot_percentage
+        // legacy field - backend still requires this as a positive integer even though it's no longer used in any calculation (payback now lives on the roping)
+        pot_percentage: 1
       }
       setInputValues({
         payoff_name: '',
-        places_to_pay: null,
-        pot_percentage: null
+        places_to_pay: null
       })
       const id = localStorage.getItem('productinoId')
       try {
@@ -136,7 +134,7 @@ const AddPayoff = ({ handleCheck, setFlag }) => {
               <CardContent>
                 <form onSubmit={handleSubmit}>
                   <Grid container spacing={5}>
-                    <Grid item xs={12} sm={6}>
+                    <Grid item xs={12}>
                       <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
                         Number of places to pay
                       </Typography>
@@ -146,20 +144,6 @@ const AddPayoff = ({ handleCheck, setFlag }) => {
                         name='places_to_pay'
                         placeholder='00'
                         value={inputValues.places_to_pay}
-                        onChange={handleChange}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
-                        Pot Percentage
-                      </Typography>
-                      <TextField
-                        fullWidth
-                        type='number'
-                        required
-                        name='pot_percentage'
-                        placeholder='00'
-                        value={inputValues.pot_percentage}
                         onChange={handleChange}
                       />
                     </Grid>

@@ -14,7 +14,7 @@ const api = axios.create({
   // mode:"no-cors",
   headers: {
     'Content-Type': 'application/json',
-    "ngrok-skip-browser-warning": "true"
+    // "ngrok-skip-browser-warning": "true"
     
     // "x-api-key":API_KEY
   },

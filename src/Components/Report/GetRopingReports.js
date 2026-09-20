@@ -136,6 +136,21 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
   const handleTimerSheetWithHandicapClose = () => setTimerSheetWithHandicapOpen(false)
   const [teamsWithHandicap, setTeamsWithHandicap] = useState([])
 
+  const [ratingAdjustmentOpen, setRatingAdjustmentOpen] = useState(false)
+  const handleRatingAdjustmentOpen = () => setRatingAdjustmentOpen(true)
+  const handleRatingAdjustmentClose = () => setRatingAdjustmentOpen(false)
+  const [ratingAdjustmentData, setRatingAdjustmentData] = useState([])
+
+  const [standingsOpen, setStandingsOpen] = useState(false)
+  const handleStandingsOpen = () => setStandingsOpen(true)
+  const handleStandingsClose = () => setStandingsOpen(false)
+  const [standingsData, setStandingsData] = useState(null)
+
+  const [shortRoundOpen, setShortRoundOpen] = useState(false)
+  const handleShortRoundOpen = () => setShortRoundOpen(true)
+  const handleShortRoundClose = () => setShortRoundOpen(false)
+  const [shortRoundData, setShortRoundData] = useState(null)
+
   const handleChange = e => {
     const { value } = e.target
     setSelectedReport(Number(value))
@@ -280,6 +295,39 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
         setMessage(error.message)
         handleMessageOpen()
       }
+    } else if (selectedReport === 8) {
+      try {
+        const response = await API.getAPICalling(`Reports/rating-adjustment/${selectedRopingId}`)
+        setRatingAdjustmentData(response)
+        handleRatingAdjustmentOpen()
+      } catch (error) {
+        console.log('Some error:  ', error)
+        setRatingAdjustmentData([])
+        setMessage(error.message)
+        handleMessageOpen()
+      }
+    } else if (selectedReport === 9) {
+      try {
+        const response = await API.getAPICalling(`Reports/standings/${selectedRopingId}`)
+        setStandingsData(response)
+        handleStandingsOpen()
+      } catch (error) {
+        console.log('Some error:  ', error)
+        setStandingsData(null)
+        setMessage(error.message)
+        handleMessageOpen()
+      }
+    } else if (selectedReport === 10) {
+      try {
+        const response = await API.getAPICalling(`Reports/short-round/${selectedRopingId}`)
+        setShortRoundData(response)
+        handleShortRoundOpen()
+      } catch (error) {
+        console.log('Some error:  ', error)
+        setShortRoundData(null)
+        setMessage(error.message)
+        handleMessageOpen()
+      }
     }else {
       setMessage('Please select a type first')
       handleMessageOpen()
@@ -412,6 +460,54 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
     }
   }
 
+  const downloadRatingAdjustmentPDF = async () => {
+    if (typeof window !== 'undefined') {
+      const html2pdf = (await import('html2pdf.js')).default
+      const element = document.getElementById('ratingAdjustmentTable')
+      html2pdf()
+        .from(element)
+        .set({
+          margin: 1,
+          filename: 'RatingAdjustment.pdf',
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        })
+        .save()
+    }
+  }
+
+  const downloadStandingsPDF = async () => {
+    if (typeof window !== 'undefined') {
+      const html2pdf = (await import('html2pdf.js')).default
+      const element = document.getElementById('standingsTable')
+      html2pdf()
+        .from(element)
+        .set({
+          margin: 1,
+          filename: 'Standings.pdf',
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        })
+        .save()
+    }
+  }
+
+  const downloadShortRoundPDF = async () => {
+    if (typeof window !== 'undefined') {
+      const html2pdf = (await import('html2pdf.js')).default
+      const element = document.getElementById('shortRoundTable')
+      html2pdf()
+        .from(element)
+        .set({
+          margin: 1,
+          filename: 'ShortRound.pdf',
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        })
+        .save()
+    }
+  }
+
   return (
     <>
       <Grid item xs={6} sm={2}>
@@ -437,6 +533,9 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
             <MenuItem value='5'>Teams by number</MenuItem>
             <MenuItem value='6'>Timer Sheet</MenuItem>
             <MenuItem value='7'>Time Sheet with Handicap</MenuItem>
+            <MenuItem value='8'>Rating Adjustment Preview</MenuItem>
+            <MenuItem value='9'>Standings</MenuItem>
+            <MenuItem value='10'>Short Round</MenuItem>
           </Select>
         </FormControl>
       </Grid>
@@ -819,23 +918,152 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
           </Button>
         </Box>
       </Modal>
+
+      {/* Modal for Rating Adjustment Preview  */}
+      <Modal
+        open={ratingAdjustmentOpen}
+        onClose={handleRatingAdjustmentClose}
+        aria-labelledby='modal-modal-title'
+        aria-describedby='modal-modal-description'
+      >
+        <Box sx={style}>
+          <div id='ratingAdjustmentTable'>
+            <Typography
+              sx={{ mt: 1, mb: 2, fontSize: '14px', textAlign: 'center', fontStyle: 'italic' }}
+            >
+              Preview only — these adjustments are not applied until each team's round time is saved.
+            </Typography>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 500 }} aria-label='customized table'>
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell align='center'>Header</StyledTableCell>
+                    <StyledTableCell align='center'>Heeler</StyledTableCell>
+                    <StyledTableCell align='center'>Team Rating</StyledTableCell>
+                    <StyledTableCell align='center'>Adjustment (sec)</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {ratingAdjustmentData.map((team, index) => (
+                    <StyledTableRow key={index}>
+                      <StyledTableCell align='center'>{team.headerName}</StyledTableCell>
+                      <StyledTableCell align='center'>{team.healerName}</StyledTableCell>
+                      <StyledTableCell align='center'>{team.teamRating}</StyledTableCell>
+                      <StyledTableCell align='center'>{team.adjustmentSeconds}</StyledTableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+          <Button onClick={downloadRatingAdjustmentPDF} type='button' variant='contained' size='medium'>
+            Download
+          </Button>
+        </Box>
+      </Modal>
+
+      {/* Modal for Standings  */}
+      <Modal
+        open={standingsOpen}
+        onClose={handleStandingsClose}
+        aria-labelledby='modal-modal-title'
+        aria-describedby='modal-modal-description'
+      >
+        <Box sx={style}>
+          <div id='standingsTable'>
+            {standingsData && (
+              <Typography
+                fontWeight='bold'
+                sx={{ mt: 1, mb: 2, fontSize: '18px', textAlign: 'center' }}
+              >
+                {standingsData.ropingName}
+              </Typography>
+            )}
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 500 }} aria-label='customized table'>
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell align='center'>Header</StyledTableCell>
+                    <StyledTableCell align='center'>Heeler</StyledTableCell>
+                    <StyledTableCell align='center'>Status</StyledTableCell>
+                    <StyledTableCell align='center'>Round</StyledTableCell>
+                    <StyledTableCell align='center'>Total Time</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {standingsData &&
+                    standingsData.standings.map((team, index) => (
+                      <StyledTableRow key={index}>
+                        <StyledTableCell align='center'>{team.header}</StyledTableCell>
+                        <StyledTableCell align='center'>{team.healer}</StyledTableCell>
+                        <StyledTableCell align='center' sx={{ color: team.status === 'Eliminated' ? 'red' : 'inherit' }}>
+                          {team.status}
+                        </StyledTableCell>
+                        <StyledTableCell align='center'>{team.roundNumber ?? '-'}</StyledTableCell>
+                        <StyledTableCell align='center'>{team.totalTime ?? '-'}</StyledTableCell>
+                      </StyledTableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+          <Button onClick={downloadStandingsPDF} type='button' variant='contained' size='medium'>
+            Download
+          </Button>
+        </Box>
+      </Modal>
+
+      {/* Modal for Short Round  */}
+      <Modal
+        open={shortRoundOpen}
+        onClose={handleShortRoundClose}
+        aria-labelledby='modal-modal-title'
+        aria-describedby='modal-modal-description'
+      >
+        <Box sx={style}>
+          <div id='shortRoundTable'>
+            {shortRoundData && (
+              <Typography sx={{ mt: 1, mb: 2, fontSize: '14px', textAlign: 'center' }}>
+                Cutoff round: {shortRoundData.cutoffRound} • Teams in short round: {shortRoundData.teamsInShortRound}{' '}
+                • Sort order: {shortRoundData.sortOrder === 'SLOW_TO_FAST' ? 'Slow to Fast' : 'Fast to Slow'} •
+                Qualified: {shortRoundData.qualifiedCount}
+              </Typography>
+            )}
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 500 }} aria-label='customized table'>
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell align='center'>S.No</StyledTableCell>
+                    <StyledTableCell align='center'>Header</StyledTableCell>
+                    <StyledTableCell align='center'>Heeler</StyledTableCell>
+                    <StyledTableCell align='center'>Total Time</StyledTableCell>
+                    <StyledTableCell align='center'>Tie</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {shortRoundData &&
+                    shortRoundData.teams.map((team, index) => (
+                      <StyledTableRow key={index}>
+                        <StyledTableCell component='th' scope='row' align='center'>
+                          {index + 1}
+                        </StyledTableCell>
+                        <StyledTableCell align='center'>{team.header}</StyledTableCell>
+                        <StyledTableCell align='center'>{team.healer}</StyledTableCell>
+                        <StyledTableCell align='center'>{team.totalTime}</StyledTableCell>
+                        <StyledTableCell align='center'>{team.tieIncluded ? 'Tie' : ''}</StyledTableCell>
+                      </StyledTableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+          <Button onClick={downloadShortRoundPDF} type='button' variant='contained' size='medium'>
+            Download
+          </Button>
+        </Box>
+      </Modal>
     </>
   )
 }
 
 export default GetRopingReports
-
-//Header's header rating=3;
-//Healer's healer rating=4
-//Team rating=2
-//Classification=10
-//handicap_down_amount=2
-//maximum_amount=20
-//Difference = classification - team rating = 8
-// obtained_amount = difference * handicap_down_amount= 8*2=16
-// if(obtained_amount<maximum_amount){
-//  handicap in seconds = obtained_amount
-//}
-//else{
-//  handicap in seconds = maximum_amount
-//}
