@@ -139,6 +139,17 @@ const Add_Roping = ({ handleCheck }) => {
   const productionId = parseInt(localStorage.getItem('productinoId'), 10)
   console.log('Production ID:', productionId)
 
+  // Guard: without a selected production the backend rejects the request with
+  // the confusing "productionId must be an integer number" validation error.
+  // Surface a clear message instead of sending a broken request.
+  if (Number.isNaN(productionId)) {
+    setMessage('Please select a production first, then add the roping.')
+    handleClose()
+    handleMessageOpen()
+
+    return
+  }
+
   // helper: converts a value to an integer, or null if empty/unset
   const toInt = val => (val !== null && val !== '' && val !== undefined ? parseInt(val, 10) : null)
 

@@ -199,23 +199,64 @@ const Roping_information = ({check}) => {
       handleMessageOpen();
     }
     else{
+      // helper: converts a value to an integer, or null if empty/unset
+      const toInt = val => (val !== null && val !== '' && val !== undefined ? parseInt(val, 10) : null)
+
+      // stock_charge_percent / payback_percent / ratings accept decimals (e.g. 33.3) - do not truncate to int
+      const toFloat = val => (val !== null && val !== '' && val !== undefined ? parseFloat(val) : null)
+
+      // Send only the editable fields as properly typed numbers. The values held
+      // in state come from text inputs (strings) and, on the update form, also
+      // carry backend-only fields (id/created_at/updated_at) loaded with the
+      // record - stripping those and parsing the numbers keeps the payload clean
+      // and lets decimals (like a 33.3% stock charge) through unchanged.
+      const parsedRoping = {
+        type: roping.type,
+        draw_count: toInt(roping.draw_count),
+        max_entries_per_roper: toInt(roping.max_entries_per_roper),
+        num_rounds: toInt(roping.num_rounds),
+        teams_in_short_round: toInt(roping.teams_in_short_round),
+        short_round_sort_order: roping.short_round_sort_order
+      }
+      const parsedRopingRules = {
+        progressive_after_round: toInt(ropingRules.progressive_after_round),
+        barrier_penalty: toInt(ropingRules.barrier_penalty),
+        leg_penalty: toInt(ropingRules.leg_penalty),
+        classification: toInt(ropingRules.classification)
+      }
+      const parsedRopingFinancials = {
+        entry_fees: toInt(ropingFinancials.entry_fees),
+        stock_charge_percent: toFloat(ropingFinancials.stock_charge_percent),
+        association_fees: toInt(ropingFinancials.association_fees),
+        price_deduction: toInt(ropingFinancials.price_deduction),
+        added_money: toInt(ropingFinancials.added_money),
+        payback_percent: toFloat(ropingFinancials.payback_percent)
+      }
+      const rc = ropingClassification || {}
+      const parsedRopingClassification = {
+        baseline_team_rating: toFloat(rc.baseline_team_rating),
+        rating_adjustment_factor: toFloat(rc.rating_adjustment_factor),
+        max_seconds_deducted: toFloat(rc.max_seconds_deducted),
+        max_seconds_added: toFloat(rc.max_seconds_added),
+        handicap_rating_floor: toFloat(rc.handicap_rating_floor),
+        slide_rating_ceiling: toFloat(rc.slide_rating_ceiling),
+        // legacy fields - backend still requires these as integers even though they're no longer used in any calculation
+        round_to_handicap: 0,
+        amount_to_handicap: 0,
+        handicap_down_amount: 0,
+        handicap_up_amount: 0
+      }
+
       const withoutClassificationData={
-        roping,
-        ropingRules,
-        ropingFinancials,
+        roping: parsedRoping,
+        ropingRules: parsedRopingRules,
+        ropingFinancials: parsedRopingFinancials,
       }
       const withClassificationData={
-        roping,
-        ropingRules,
-        ropingFinancials,
-        ropingClassification: {
-          // legacy fields - backend still requires these as integers even though they're no longer used in any calculation
-          round_to_handicap: 0,
-          amount_to_handicap: 0,
-          handicap_down_amount: 0,
-          handicap_up_amount: 0,
-          ...ropingClassification
-        }
+        roping: parsedRoping,
+        ropingRules: parsedRopingRules,
+        ropingFinancials: parsedRopingFinancials,
+        ropingClassification: parsedRopingClassification
       }
       // setRoping({
       // type: '',
