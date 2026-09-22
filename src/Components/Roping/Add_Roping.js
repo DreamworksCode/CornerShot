@@ -168,7 +168,8 @@ const Add_Roping = ({ handleCheck }) => {
     progressive_after_round: toInt(ropingRules.progressive_after_round),
     barrier_penalty: toInt(ropingRules.barrier_penalty),
     leg_penalty: toInt(ropingRules.leg_penalty),
-    classification: toInt(ropingRules.classification)
+    // classification accepts decimals (e.g. 8.5), not just whole numbers
+    classification: toFloat(ropingRules.classification)
   }
 
   const parsedRopingFinancials = {
@@ -580,7 +581,7 @@ const Add_Roping = ({ handleCheck }) => {
                         fullWidth
                         type='number'
                         onChange={handleRopingRulesChange}
-                        inputProps={{ min: 0 }}
+                        inputProps={{ min: 0, step: 0.1 }}
                         required
                         name='classification'
                         value={ropingRules.classification}
