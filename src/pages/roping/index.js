@@ -40,6 +40,14 @@ const RopingInformation = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const productionId = parseInt(localStorage.getItem('productinoId'), 10);
+    if (token !== null && (isNaN(productionId) || productionId <= 0)) {
+      router.push('/');
+    }
+  }, []);
+
   return (
     <div>
       <Add_Roping handleCheck={handleCheck} />

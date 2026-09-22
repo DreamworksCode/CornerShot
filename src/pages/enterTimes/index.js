@@ -26,6 +26,14 @@ useEffect(async () => {
   }
 }, [])
 
+useEffect(() => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const productionId = parseInt(localStorage.getItem('productinoId'), 10)
+  if (token !== null && (isNaN(productionId) || productionId <= 0)) {
+    router.push('/')
+  }
+}, [])
+
 useEffect(async () => {
   const productionId = localStorage.getItem('productinoId')
   try {

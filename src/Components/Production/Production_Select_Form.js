@@ -37,8 +37,10 @@ const Production_Select_Form = ({ productions, setProductions }) => {
   }
   const [open, setOpen] = useState(false)
   const [editOpen, setEditOpen] = useState(false)
+  // selected now holds the production's id directly (not its name) - the Select's
+  // MenuItem value is bound to production.id, so there's no separate name-matching
+  // lookup that could silently fail to resolve an id.
   const [selected, setSelected] = useState('')
-  const [selectedId, setSelectedId] = useState(0)
   const [message, setMessage] = useState('')
   const [shoudlReload,setShouldReload]=useState(true);
   const [editableContent, setEditableContent] = useState({
@@ -62,13 +64,6 @@ const Production_Select_Form = ({ productions, setProductions }) => {
 
   const handleChange = event => {
     setSelected(event.target.value)
-    productions.map(production => {
-      // console.log(event.target.value);
-      if (production.name === event.target.value) {
-        setSelectedId(production.id)
-        // console.log(production.id);
-      }
-    })
   }
   const handleOpen = () => {
     setOpen(true)
@@ -85,32 +80,38 @@ const Production_Select_Form = ({ productions, setProductions }) => {
   }
 
   const handleSubmit = e => {
-    if (selected.trim('') === '') {
-      e.preventDefault();
+    e.preventDefault();
+    if (selected === '') {
       setMessage('First Select a Production ')
       console.log("First select a production");
       handleOpen()
-    } else {
-      e.preventDefault();
-      localStorage.setItem('production', selected)
-      console.log("Selected id is: ",selectedId);;
-      localStorage.setItem('productinoId',selectedId);
-      setMessage('Production is selected successfully')
-      handleOpen()
-      setTimeout(() => {
-        router.reload(window.location.pathname);
-      }, 800);
+
+      return
     }
+    const matchedProduction = productions.find(production => production.id === selected)
+    if (!matchedProduction) {
+      setMessage('Selected production could not be found. Please select again.')
+      handleOpen()
+
+      return
+    }
+    localStorage.setItem('production', matchedProduction.name)
+    localStorage.setItem('productinoId', matchedProduction.id)
+    setMessage('Production is selected successfully')
+    handleOpen()
+    setTimeout(() => {
+      router.reload(window.location.pathname);
+    }, 800);
   }
 
   const handleEdit = async() => {
-    if (selectedId === 0) {
+    if (selected === '') {
       setMessage('Please pick an event first then edit it')
       handleOpen()
     } else {
       const token = localStorage.getItem('token')
       try {
-        const response = await API.getAPICalling(`production/${selectedId}`, token);
+        const response = await API.getAPICalling(`production/${selected}`, token);
         const formattedDate=await formatDate(response.data.date);
         setEditableContent({
           name:response.data.name,
@@ -155,7 +156,7 @@ const Production_Select_Form = ({ productions, setProductions }) => {
     else{
       const token=localStorage.getItem('token');
       try {
-        const response=await API.putAPICalling(`production/${selectedId}`,editableContent,token);;
+        const response=await API.putAPICalling(`production/${selected}`,editableContent,token);;
         setMessage("Updated Successfully");
         handleOpen();
         setShouldReload(prev=>!prev);
@@ -188,8 +189,8 @@ const Production_Select_Form = ({ productions, setProductions }) => {
                     id='form-layouts-separator-select'
                     labelId='form-layouts-separator-select-label'
                   >
-                    {productions.map((production, index) => (
-                      <MenuItem value={production.name} key={index}>
+                    {productions.map(production => (
+                      <MenuItem value={production.id} key={production.id}>
                         {production.name}
                       </MenuItem>
                     ))}

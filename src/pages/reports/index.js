@@ -27,6 +27,15 @@ const index = () => {
       }
     }
   },[])
+
+  useEffect(() => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    const productionId = parseInt(localStorage.getItem('productinoId'), 10)
+    if (token !== null && (isNaN(productionId) || productionId <= 0)) {
+      router.push('/')
+    }
+  }, [])
+
   return (
     <div>
       <Grid container spacing={5}>
