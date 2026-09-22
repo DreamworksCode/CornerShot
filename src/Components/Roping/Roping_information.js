@@ -177,8 +177,18 @@ const Roping_information = ({check}) => {
   }, [check])
 
   const handleCheckboxChange = event => {
-    setIsChecked(event.target.checked)
-    console.log('Checkbox is checked:', event.target.checked)
+    const checked = event.target.checked
+    setIsChecked(checked)
+
+    // When "HandiCap Roping" is turned on, auto-populate the Baseline Team
+    // Rating from the Classification value the user already entered (e.g. 8.5).
+    // The field stays editable, so the user can still override it afterwards.
+    if (checked && ropingRules.classification !== null && ropingRules.classification !== '') {
+      setRopingClassification(prev => ({
+        ...(prev || {}),
+        baseline_team_rating: ropingRules.classification
+      }))
+    }
   }
 
   const handleSubmit = async e => {
