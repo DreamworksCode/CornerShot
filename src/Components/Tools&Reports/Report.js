@@ -13,38 +13,27 @@ import { useEffect, useState } from 'react'
 import API from 'src/pages/api'
 
 const Report = () => {
-  const [ropingList, setRopingList] = useState([])
+  const [ropingName, setRopingName] = useState('')
   const [selectedRopingId, setSelectedRopingId] = useState(null)
   const [roping, setRoping] = useState({})
   const [payoffId, setPayoffId] = useState(null)
   const [selectedPayoff, setSelectedPayoff] = useState(null)
 
   useEffect(async () => {
-    const productionId = localStorage.getItem('productinoId')
+    const ropingId = localStorage.getItem('activeRopingId')
+    if (!ropingId) {
+      return
+    }
+    setRopingName(localStorage.getItem('activeRopingName') || '')
+    setSelectedRopingId(parseInt(ropingId, 10))
     try {
-      const response = await API.getAPICalling(`ropings/getnames/${productionId}`)
+      const response = await API.getAPICalling(`ropings/getroping/${ropingId}`)
       console.log(response)
-      setRopingList(response)
+      setRoping(response.roping)
     } catch (error) {
       console.log('Some error:  ', error)
     }
   }, [])
-
-  const handleChange = async e => {
-    // setRopingInformation({ ...ropingInformation, [e.target.name]: e.target.value })
-    if (e.target.name === 'name') {
-      const ropingId = e.target.value
-      setSelectedRopingId(ropingId)
-      console.log(ropingId)
-      try {
-        const response = await API.getAPICalling(`ropings/getroping/${ropingId}`)
-        console.log(response)
-        setRoping(response.roping)
-      } catch (error) {
-        console.log('Some error:  ', error)
-      }
-    }
-  }
 
   const [isChecked, setIsChecked] = useState(true)
 
@@ -79,23 +68,9 @@ const Report = () => {
                 </Typography>
               </Grid>
               <Grid item xs={6} sm={7}>
-                <FormControl fullWidth>
-                  <InputLabel id='form-layouts-separator-select-label'>Roping</InputLabel>
-                  <Select
-                    label='Country'
-                    defaultValue=''
-                    name='name'
-                    onChange={handleChange}
-                    id='form-layouts-separator-select'
-                    labelId='form-layouts-separator-select-label'
-                  >
-                    {ropingList.map(roping => (
-                      <MenuItem key={roping.id} value={roping.id}>
-                        {roping.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <Typography variant='body1' sx={{ fontWeight: 600, paddingTop: '15px' }}>
+                  {ropingName || 'No roping selected - pick one on the Roping Information tab to see Roping Reports'}
+                </Typography>
               </Grid>
               {selectedRopingId && (
                 <>

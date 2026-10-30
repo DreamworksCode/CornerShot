@@ -90,6 +90,20 @@ const Roping_information = ({check}) => {
     }
   }, [ropingInformation])
 
+  const handleSelectActiveRoping = () => {
+    if (!selectedRopingId) {
+      setMessage('Please pick a roping first')
+      handleMessageOpen()
+
+      return
+    }
+    const match = ropingList.find(r => r.id === selectedRopingId)
+    localStorage.setItem('activeRopingId', selectedRopingId)
+    localStorage.setItem('activeRopingName', match ? match.name : '')
+    setMessage('Roping selected. It will now be used on the other tabs.')
+    handleMessageOpen()
+  }
+
   const handleChange = async e => {
     // setRopingInformation({ ...ropingInformation, [e.target.name]: e.target.value })
     if (e.target.name === 'name') {
@@ -337,6 +351,11 @@ const Roping_information = ({check}) => {
                   <MenuItem value='Germany'>ROPING 4</MenuItem> */}
                 </Select>
               </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <Button type='button' onClick={handleSelectActiveRoping} variant='outlined' size='medium'>
+                Use this Roping on other tabs
+              </Button>
             </Grid>
             <Grid item xs={draw ? 6 : 12}>
               <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>

@@ -97,6 +97,8 @@ const Production_Select_Form = ({ productions, setProductions }) => {
     }
     localStorage.setItem('production', matchedProduction.name)
     localStorage.setItem('productinoId', matchedProduction.id)
+    localStorage.removeItem('activeRopingId')
+    localStorage.removeItem('activeRopingName')
     setMessage('Production is selected successfully')
     handleOpen()
     setTimeout(() => {

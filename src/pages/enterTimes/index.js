@@ -1,11 +1,11 @@
-import { Card, CardContent, Divider, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material'
+import { Card, CardContent, Divider, Grid, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import API from '../api'
 import router from 'next/router'
 import EnterTimes from 'src/Components/Times/EnterTimes'
 
-const index = () => {  
-const [ropingList, setRopingList] = useState([])
+const index = () => {
+const [ropingName, setRopingName] = useState('')
 const [selectedRopingId, setSelectedRopingId] = useState(null)
 const [roping, setRoping] = useState(null)
 const [classification, setClassification] = useState(null)
@@ -34,33 +34,30 @@ useEffect(() => {
   }
 }, [])
 
+useEffect(() => {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const ropingId = parseInt(localStorage.getItem('activeRopingId'), 10)
+  if (token !== null && (isNaN(ropingId) || ropingId <= 0)) {
+    router.push('/roping')
+  }
+}, [])
+
 useEffect(async () => {
-  const productionId = localStorage.getItem('productinoId')
+  const ropingId = localStorage.getItem('activeRopingId')
+  if (!ropingId) {
+    return
+  }
+  setRopingName(localStorage.getItem('activeRopingName') || '')
+  setSelectedRopingId(parseInt(ropingId, 10))
   try {
-    const response = await API.getAPICalling(`ropings/getnames/${productionId}`)
+    const response = await API.getAPICalling(`ropings/getroping/${ropingId}`)
     console.log(response)
-    setRopingList(response)
+    setRoping(response.roping)
+    setClassification(response.roping.ropingRules.classification)
   } catch (error) {
     console.log('Some error:  ', error)
   }
 }, [])
-
-const handleChange = async e => {
-  // setRopingInformation({ ...ropingInformation, [e.target.name]: e.target.value })
-  if (e.target.name === 'name') {
-    const ropingId = e.target.value
-    setSelectedRopingId(ropingId)
-    console.log(ropingId)
-    try {
-      const response = await API.getAPICalling(`ropings/getroping/${ropingId}`)
-      console.log(response)
-      setRoping(response.roping)
-      setClassification(response.roping.ropingRules.classification)
-    } catch (error) {
-      console.log('Some error:  ', error)
-    }
-  }
-}
 
   return (
     <div>
@@ -74,23 +71,9 @@ const handleChange = async e => {
               </Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
-                <InputLabel id='form-layouts-separator-select-label'>Roping</InputLabel>
-                <Select
-                  label='TYPE'
-                  defaultValue=''
-                  name='name'
-                  onChange={handleChange}
-                  id='form-layouts-separator-select'
-                  labelId='form-layouts-separator-select-label'
-                >
-                  {ropingList.map(roping => (
-                    <MenuItem key={roping.id} value={roping.id}>
-                      {roping.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Typography variant='body1' sx={{ fontWeight: 600, paddingTop: '15px' }}>
+                {ropingName || 'No roping selected'}
+              </Typography>
             </Grid>
           </Grid>
         </CardContent>

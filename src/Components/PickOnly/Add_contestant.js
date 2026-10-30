@@ -9,11 +9,8 @@ import CardContent from '@mui/material/CardContent'
 // ** Icons Imports
 import {
   Box,
-  FormControl,
   FormControlLabel,
   FormHelperText,
-  InputLabel,
-  MenuItem,
   Modal,
   Paper,
   Radio,
@@ -29,10 +26,10 @@ import {
   tableCellClasses,
   useMediaQuery
 } from '@mui/material'
-import Select from '@mui/material/Select'
 import { useEffect, useState } from 'react'
 import API from 'src/pages/api'
 import { useTheme } from '@mui/material/styles';
+import ContestantAutocomplete from 'src/Components/Contestant/ContestantAutocomplete';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -71,15 +68,10 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
     overflowY: 'auto',
     maxHeight: 600
   }
-  const [contestantList, setContestantList] = useState([])
-  const [selectedHeader, setSelectedHeader] = useState({
-    id: null,
-    header_rating: null
-  })
-  const [selectedHealer, setSelectedHealer] = useState({
-    id: null,
-    healer_rating: null
-  })
+  const [selectedHeader, setSelectedHeader] = useState(null)
+  const [selectedHealer, setSelectedHealer] = useState(null)
+  const [headerRatingSaved, setHeaderRatingSaved] = useState(false)
+  const [healerRatingSaved, setHealerRatingSaved] = useState(false)
   const [entry, setEntry] = useState({ header: 1, healer: 0 })
   const [message, setMessage] = useState('')
   const [messageOpen, setMessageOpen] = useState(false)
@@ -103,17 +95,6 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
   }, [selectedRopingId])
 
   useEffect(async () => {
-    const item = localStorage.getItem('token')
-    try {
-      const response = await API.getAPICalling(`contestant`, item)
-      console.log(response.data)
-      setContestantList(response.data)
-    } catch (error) {
-      console.log('Some error:  ', error)
-    }
-  }, [])
-
-  useEffect(async () => {
     try {
       const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_Only`)
       console.log(response)
@@ -123,51 +104,50 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
     }
   }, [flag, selectedRopingId])
 
-  const handleHeaderChange = e => {
-    // console.log(e.target.name)
-    if (e.target.name === 'name') {
-      const id = e.target.value
-      const selectedObject = contestantList.find(item => item.id === id)
-      setSelectedHeader({
-        id: selectedObject.id,
-        header_rating: selectedObject.header_rating
-      })
-      console.log(selectedObject)
-    } else {
-      const { name, value } = e.target;
-      setSelectedHeader({ ...selectedHeader,
-        [name]: value === '' ? '' : Number(value), 
-        })
+  const handleHeaderRatingChange = e => {
+    const { value } = e.target
+    setSelectedHeader({ ...selectedHeader, header_rating: value === '' ? null : Number(value) })
+    setHeaderRatingSaved(false)
+  }
+  const handleHealerRatingChange = e => {
+    const { value } = e.target
+    setSelectedHealer({ ...selectedHealer, healer_rating: value === '' ? null : Number(value) })
+    setHealerRatingSaved(false)
+  }
+
+  const handleSaveHeaderRating = async () => {
+    try {
+      await API.putAPICalling(`contestant/${selectedHeader.id}`, { header_rating: selectedHeader.header_rating })
+      setHeaderRatingSaved(true)
+      setMessage('Header rating saved to profile')
+      handleMessageOpen()
+    } catch (error) {
+      setMessage(error.message)
+      handleMessageOpen()
     }
   }
-  const handleHealerChange = e => {
-    // console.log(e.target.name)
-    if (e.target.name === 'name') {
-      const id = e.target.value
-      const selectedObject = contestantList.find(item => item.id === id)
-      setSelectedHealer({
-        id: selectedObject.id,
-        healer_rating: selectedObject.healer_rating
-      })
-      console.log(selectedObject)
-    } else {
-      const { name, value } = e.target;
-      setSelectedHealer({ ...selectedHealer, 
-        [name]: value === '' ? '' : Number(value), 
-      })
+  const handleSaveHealerRating = async () => {
+    try {
+      await API.putAPICalling(`contestant/${selectedHealer.id}`, { healer_rating: selectedHealer.healer_rating })
+      setHealerRatingSaved(true)
+      setMessage('Healer rating saved to profile')
+      handleMessageOpen()
+    } catch (error) {
+      setMessage(error.message)
+      handleMessageOpen()
     }
   }
 
   const handleAddTeam = async () => {
     if (
-      selectedHeader.id === null ||
+      !selectedHeader ||
       selectedHeader.header_rating === null ||
-      selectedHealer.healer_rating === null ||
-      selectedHealer.id === null
+      !selectedHealer ||
+      selectedHealer.healer_rating === null
     ) {
       setMessage('please fill out the required fields first')
       handleMessageOpen()
-    } 
+    }
     else if (selectedHeader.id===selectedHealer.id){
       setMessage("Header and healer cannot be same");
       handleMessageOpen();
@@ -203,7 +183,7 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
   }
 
   const handleDeleteTeam=async(e)=>{
-    if(selectedHeader.id===null || selectedHealer.id===null || selectedHeader.header_rating===null || selectedHealer.healer_rating===null){
+    if(!selectedHeader || !selectedHealer || selectedHeader.header_rating===null || selectedHealer.healer_rating===null){
       setMessage("Please select a contestant first");
       handleMessageOpen();
     }
@@ -250,39 +230,39 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
                 </Typography>
               </Grid>
               <Grid item xs={6} sm={3}>
-                <FormControl fullWidth>
-                  <InputLabel id='form-layouts-separator-select-label'>Header</InputLabel>
-                  <Select
-                    label='Header'
-                    name='name'
-                    onChange={handleHeaderChange}
-                    id='form-layouts-separator-select'
-                    labelId='form-layouts-separator-select-label'
-                  >
-                    {contestantList.map(contestant => (
-                      <MenuItem key={contestant.id} value={contestant.id}>
-                        {contestant.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <ContestantAutocomplete
+                  label='Header'
+                  value={selectedHeader}
+                  onSelect={contestant => {
+                    setSelectedHeader(contestant)
+                    setHeaderRatingSaved(false)
+                  }}
+                />
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
                   Header Rating
                 </Typography>
               </Grid>
-              <Grid item xs={6} sm={3}>
+              <Grid item xs={6} sm={2}>
                 <TextField
                   fullWidth
-                  onChange={handleHeaderChange}inputProps={{ min: 0 }}
+                  onChange={handleHeaderRatingChange}
+                  inputProps={{ min: 0 }}
                   name='header_rating'
                   required
-                  value={selectedHeader.header_rating ? selectedHeader.header_rating : ''}
+                  disabled={!selectedHeader}
+                  value={selectedHeader && selectedHeader.header_rating !== null ? selectedHeader.header_rating : ''}
                   type='number'
-                  // label='Phone No.'
                   placeholder='00'
                 />
+              </Grid>
+              <Grid item xs={6} sm={1} sx={{ display: 'flex', alignItems: 'center' }}>
+                {selectedHeader && selectedHeader.header_rating !== null && !headerRatingSaved && (
+                  <Button onClick={handleSaveHeaderRating} type='button' variant='outlined' size='small'>
+                    Save to profile
+                  </Button>
+                )}
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Typography
@@ -293,39 +273,39 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
                 </Typography>
               </Grid>
               <Grid item xs={6} sm={3}>
-                <FormControl fullWidth>
-                  <InputLabel id='form-layouts-separator-select-label'>Healer</InputLabel>
-                  <Select
-                    label='Healer'
-                    name='name'
-                    onChange={handleHealerChange}
-                    id='form-layouts-separator-select'
-                    labelId='form-layouts-separator-select-label'
-                  >
-                    {contestantList.map(contestant => (
-                      <MenuItem key={contestant.id} value={contestant.id}>
-                        {contestant.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                <ContestantAutocomplete
+                  label='Healer'
+                  value={selectedHealer}
+                  onSelect={contestant => {
+                    setSelectedHealer(contestant)
+                    setHealerRatingSaved(false)
+                  }}
+                />
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
                   Heeler Rating
                 </Typography>
               </Grid>
-              <Grid item xs={6} sm={3}>
+              <Grid item xs={6} sm={2}>
                 <TextField
                   fullWidth
-                  onChange={handleHealerChange}inputProps={{ min: 0 }}
+                  onChange={handleHealerRatingChange}
+                  inputProps={{ min: 0 }}
                   type='number'
                   required
-                  value={selectedHealer.healer_rating ? selectedHealer.healer_rating : ''}
+                  disabled={!selectedHealer}
+                  value={selectedHealer && selectedHealer.healer_rating !== null ? selectedHealer.healer_rating : ''}
                   name='healer_rating'
-                  // label='Phone No.'
                   placeholder='00'
                 />
+              </Grid>
+              <Grid item xs={6} sm={1} sx={{ display: 'flex', alignItems: 'center' }}>
+                {selectedHealer && selectedHealer.healer_rating !== null && !healerRatingSaved && (
+                  <Button onClick={handleSaveHealerRating} type='button' variant='outlined' size='small'>
+                    Save to profile
+                  </Button>
+                )}
               </Grid>
               <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <Button onClick={handleAddTeam} type='button' variant='contained' size='medium'>

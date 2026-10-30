@@ -17,8 +17,6 @@ import {
   FormControl,
   FormControlLabel,
   FormHelperText,
-  InputLabel,
-  MenuItem,
   Modal,
   Paper,
   Radio,
@@ -34,10 +32,10 @@ import {
   tableCellClasses,
   useMediaQuery
 } from '@mui/material'
-import Select from '@mui/material/Select'
 import { useEffect, useState } from 'react'
 import API from 'src/pages/api'
 import { useTheme } from '@mui/material/styles';
+import ContestantAutocomplete from 'src/Components/Contestant/ContestantAutocomplete';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -78,13 +76,9 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
     maxHeight: 600
   }
   
-  const [contestantList, setContestantList] = useState([])
   const [drawEntries,setDrawEntries]=useState([]);
-  const [selectedContestant, setSelectedContestant] = useState({
-    id: null,
-    header_rating: 0,
-    healer_rating: 0
-  })
+  const [selectedContestant, setSelectedContestant] = useState(null)
+  const [ratingsSaved, setRatingsSaved] = useState(false)
   const [entry, setEntry] = useState({ header: 1, healer: 0 })
   const [message, setMessage] =useState('')
   const [messageOpen, setMessageOpen] = useState(false)
@@ -114,29 +108,9 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
     }
   },[flag,selectedRopingId])
 
-  useEffect(async () => {
-    const item = localStorage.getItem('token')
-    try {
-      const response = await API.getAPICalling(`contestant`, item)
-      console.log(response.data)
-      setContestantList(response.data)
-    } catch (error) {
-      console.log('Some error:  ', error)
-    }
-  }, [])
-
   const handleChange = e => {
     // console.log(e.target.name)
-    if (e.target.name === 'name') {
-      const id = e.target.value
-      const selectedObject = contestantList.find(item => item.id === id)
-      setSelectedContestant({
-        id: selectedObject.id,
-        header_rating: selectedObject.header_rating,
-        healer_rating: selectedObject.healer_rating
-      })
-      console.log(selectedObject)
-    }else if(e.target.name==="checkbox"){
+    if(e.target.name==="checkbox"){
       const item = e.target.value
     if (item === 'heading') {
       setEntry({
@@ -153,15 +127,16 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
       const { name, value } = e.target;
     setSelectedContestant({
       ...selectedContestant,
-      [name]: value === '' ? '' : Number(value), // Convert to number or keep it as empty string
+      [name]: value === '' ? null : Number(value),
     });
+    setRatingsSaved(false)
     }
   }
 
 
 
   const handleAddButtonClick=async ()=>{
-    if(selectedContestant.id===null || selectedContestant.header_rating===null || selectedContestant.healer_rating===null){
+    if(!selectedContestant || selectedContestant.header_rating===null || selectedContestant.healer_rating===null){
       setMessage("please fill out the required fields first");
       handleMessageOpen();
     }
@@ -196,7 +171,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
   }
 
   const handleDeleteButtonClick=async()=>{
-    if(selectedContestant.id===null || selectedContestant.header_rating===null || selectedContestant.healer_rating===null){
+    if(!selectedContestant || selectedContestant.header_rating===null || selectedContestant.healer_rating===null){
       setMessage("Please select a contestant first");
       handleMessageOpen();
     }
@@ -230,7 +205,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
 
 
   const handleUpdateButtonClick=async (e)=>{
-    if(selectedContestant.id===null || selectedContestant.header_rating===null || selectedContestant.healer_rating===null){
+    if(!selectedContestant || selectedContestant.header_rating===null || selectedContestant.healer_rating===null){
       setMessage("Please select a contestant first");
       handleMessageOpen();
     }
@@ -287,22 +262,14 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
               </Typography>
             </Grid>
             <Grid item xs={6} sm={3}>
-              <FormControl fullWidth>
-                <InputLabel id='form-layouts-separator-select-label'>Contestant</InputLabel>
-                <Select
-                  label='Contestant'
-                  name='name'
-                  onChange={handleChange}
-                  id='form-layouts-separator-select'
-                  labelId='form-layouts-separator-select-label'
-                >
-                  {contestantList.map(contestant => (
-                    <MenuItem key={contestant.id} value={contestant.id}>
-                      {contestant.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <ContestantAutocomplete
+                label='Contestant'
+                value={selectedContestant}
+                onSelect={contestant => {
+                  setSelectedContestant(contestant)
+                  setRatingsSaved(false)
+                }}
+              />
             </Grid>
             <Grid item xs={12}></Grid>
             <Grid item xs={6} sm={3}>
@@ -316,7 +283,8 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
                 onChange={handleChange}
                 name='header_rating'inputProps={{ min: 0 }}
                 required
-                value={selectedContestant.header_rating ? selectedContestant.header_rating : ''}
+                disabled={!selectedContestant}
+                value={selectedContestant && selectedContestant.header_rating !== null ? selectedContestant.header_rating : ''}
                 type='number'
                 // label='Phone No.'
                 placeholder='00'
@@ -358,7 +326,8 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
                 onChange={handleChange}inputProps={{ min: 0 }}
                 type='number'
                 required
-                value={selectedContestant.healer_rating ? selectedContestant.healer_rating : ''}
+                disabled={!selectedContestant}
+                value={selectedContestant && selectedContestant.healer_rating !== null ? selectedContestant.healer_rating : ''}
                 name='healer_rating'
                 // label='Phone No.'
                 placeholder='00'
@@ -370,6 +339,32 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
                 * Add aditional draw entries to existing entry count
               </FormHelperText>
             </Grid>
+            {selectedContestant && selectedContestant.header_rating !== null && selectedContestant.healer_rating !== null && !ratingsSaved && (
+              <Grid item xs={12} sx={{ textAlign: 'center' }}>
+                <Button
+                  onClick={() =>
+                    API.putAPICalling(`contestant/${selectedContestant.id}`, {
+                      header_rating: selectedContestant.header_rating,
+                      healer_rating: selectedContestant.healer_rating
+                    })
+                      .then(() => {
+                        setRatingsSaved(true)
+                        setMessage('Ratings saved to profile')
+                        handleMessageOpen()
+                      })
+                      .catch(error => {
+                        setMessage(error.message)
+                        handleMessageOpen()
+                      })
+                  }
+                  type='button'
+                  variant='outlined'
+                  size='small'
+                >
+                  Save ratings to profile
+                </Button>
+              </Grid>
+            )}
             <Grid item xs={12} sm={3}>
               <Button onClick={handleAddButtonClick} type='button' variant='contained' size='medium'>
                 Add To Draw

@@ -15,7 +15,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
     // "ngrok-skip-browser-warning": "true"
-    
+
     // "x-api-key":API_KEY
   },
 });
@@ -24,6 +24,7 @@ const formApi=axios.create({
   baseURL:BASE_URL,
   headers:{
     'Content-Type': 'multipart/form-data',
+    // "ngrok-skip-browser-warning": "true"
     // "x-api-key":API_KEY
   }
 })
@@ -32,16 +33,12 @@ const setAuthToken = (token) => {
   if (token) {
     console.log("TOken saved");
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete api.defaults.headers.common['Authorization'];
   }
 };
 
 const setFormAuthToken=(token)=>{
   if (token) {
     formApi.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-  } else {
-    delete formApi.defaults.headers.common['Authorization'];
   }
 }
 
