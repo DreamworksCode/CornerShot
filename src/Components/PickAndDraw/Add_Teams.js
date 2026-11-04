@@ -244,7 +244,12 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
       <Card>
         <CardHeader title='Add Team' titleTypographyProps={{ variant: 'h6' }} />
         <CardContent>
-          <form>
+          <form
+            onSubmit={e => {
+              e.preventDefault()
+              handleAddTeam()
+            }}
+          >
             <Grid container spacing={4}>
               {/* Header */}
               <Grid item xs={12} sm={4}>
@@ -400,7 +405,7 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
               </Grid>
 
               <Grid item xs={12} sm={3}>
-                <Button fullWidth onClick={handleAddTeam} type='button' variant='contained' size='medium'>
+                <Button fullWidth type='submit' variant='contained' size='medium'>
                   Add Team
                 </Button>
               </Grid>

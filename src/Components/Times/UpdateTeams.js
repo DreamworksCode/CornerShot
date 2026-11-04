@@ -27,6 +27,7 @@ import {
 } from '@mui/material'
 import React, { useState } from 'react'
 import API from 'src/pages/api'
+import formatTime from 'src/utils/formatTime'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -205,7 +206,7 @@ const UpdateTeams = ({ teamsForUpdate, leg, barrier, setFlag, payoutComplete }) 
                           </StyledTableCell>
                           <StyledTableCell align='center'>{team.team.header.name}</StyledTableCell>
                           <StyledTableCell align='center'>{team.team.healer.name}</StyledTableCell>
-                          <StyledTableCell align='center'>{team.current_time}</StyledTableCell>
+                          <StyledTableCell align='center'>{formatTime(team.current_time)}</StyledTableCell>
                           <StyledTableCell align='center'>
                             {' '}
                             <Button
@@ -338,7 +339,7 @@ const UpdateTeams = ({ teamsForUpdate, leg, barrier, setFlag, payoutComplete }) 
                 {entry.correctedBy ? entry.correctedBy.email : 'Unknown user'} — {new Date(entry.created_at).toLocaleString()}
               </Typography>
               <Typography variant='body2'>
-                Time: {entry.before.raw_time} → {entry.after.raw_time}
+                Time: {formatTime(entry.before.raw_time)} → {formatTime(entry.after.raw_time)}
               </Typography>
               <Typography variant='body2'>
                 Round: {entry.before.round_number} → {entry.after.round_number}

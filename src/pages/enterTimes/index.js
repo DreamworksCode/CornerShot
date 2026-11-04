@@ -53,6 +53,18 @@ useEffect(async () => {
   try {
     const response = await API.getAPICalling(`ropings/getroping/${ropingId}`)
     console.log(response)
+
+    // the active roping may belong to a different production than the one
+    // currently selected (e.g. switched in another tab) - if so, it's stale
+    const productionId = parseInt(localStorage.getItem('productinoId'), 10)
+    if (response.roping.production && response.roping.production.id !== productionId) {
+      localStorage.removeItem('activeRopingId')
+      localStorage.removeItem('activeRopingName')
+      router.push('/roping')
+
+      return
+    }
+
     setRoping(response.roping)
     setClassification(response.roping.ropingRules.classification)
   } catch (error) {

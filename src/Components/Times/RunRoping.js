@@ -29,6 +29,7 @@ import {
 } from '@mui/material'
 import { useEffect, useState } from 'react'
 import API from 'src/pages/api'
+import formatTime from 'src/utils/formatTime'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -313,6 +314,8 @@ const RunRoping = ({ roping, selectedRopingId }) => {
                       <StyledTableCell align='center'>Status</StyledTableCell>
                       <StyledTableCell align='center'>Round</StyledTableCell>
                       <StyledTableCell align='center'>Total Time</StyledTableCell>
+                      <StyledTableCell align='center'>Barrier Penalty</StyledTableCell>
+                      <StyledTableCell align='center'>Leg Penalty</StyledTableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -325,7 +328,9 @@ const RunRoping = ({ roping, selectedRopingId }) => {
                             {team.status}
                           </StyledTableCell>
                           <StyledTableCell align='center'>{team.roundNumber ?? '-'}</StyledTableCell>
-                          <StyledTableCell align='center'>{team.totalTime ?? '-'}</StyledTableCell>
+                          <StyledTableCell align='center'>{formatTime(team.totalTime)}</StyledTableCell>
+                          <StyledTableCell align='center'>{team.barrierPenalty ? 'Yes' : team.barrierPenalty === null ? '-' : 'No'}</StyledTableCell>
+                          <StyledTableCell align='center'>{team.legPenalty ? 'Yes' : team.legPenalty === null ? '-' : 'No'}</StyledTableCell>
                         </StyledTableRow>
                       ))}
                   </TableBody>

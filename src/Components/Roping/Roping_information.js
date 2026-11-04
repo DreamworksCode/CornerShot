@@ -489,11 +489,11 @@ const Roping_information = ({check}) => {
                 type='number'
                 onChange={handleRopingFinancialsChange}
                 inputProps={{ min: 0, step: 0.1 }}
+                InputProps={{ endAdornment: <InputAdornment position='end'>%</InputAdornment> }}
                 required
                 name='stock_charge_percent'
                 value={ropingFinancials.stock_charge_percent}
-                // label='Phone No.'
-                placeholder='00'
+                placeholder='0.0'
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -551,9 +551,10 @@ const Roping_information = ({check}) => {
                 name='payback_percent'
                 onChange={handleRopingFinancialsChange}
                 inputProps={{ min: 0, step: 0.1 }}
+                InputProps={{ endAdornment: <InputAdornment position='end'>%</InputAdornment> }}
                 required
                 value={ropingFinancials.payback_percent}
-                placeholder='00'
+                placeholder='0.0'
               />
             </Grid>
             <Grid item xs={12} sm={6}>

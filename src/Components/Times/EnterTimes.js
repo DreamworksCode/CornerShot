@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react'
 import API from 'src/pages/api'
 import GetTeams from './GetTeams'
 import UpdateTeams from './UpdateTeams'
+import formatTime from 'src/utils/formatTime'
 
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -491,7 +492,7 @@ const EnterTimes = ({ roping, selectedRopingId }) => {
                     </StyledTableCell>
                     <StyledTableCell align='center'>{tableData.team.header.name}</StyledTableCell>
                     <StyledTableCell align='center'>{tableData.team.healer.name}</StyledTableCell>
-                    <StyledTableCell align='center'>{tableData.current_time}</StyledTableCell>
+                    <StyledTableCell align='center'>{formatTime(tableData.current_time)}</StyledTableCell>
                   </StyledTableRow>
                 }
               </TableBody>
@@ -527,7 +528,7 @@ const EnterTimes = ({ roping, selectedRopingId }) => {
                     </StyledTableCell>
                     <StyledTableCell align='center'>{data.team.header.name}</StyledTableCell>
                     <StyledTableCell align='center'>{data.team.healer.name}</StyledTableCell>
-                    <StyledTableCell align='center'>{data.total_time}</StyledTableCell>
+                    <StyledTableCell align='center'>{formatTime(data.total_time)}</StyledTableCell>
                     <StyledTableCell align='center'>{data.current_time===0?data.round_number-1:data.round_number}</StyledTableCell>
                   </StyledTableRow>
                 ))}

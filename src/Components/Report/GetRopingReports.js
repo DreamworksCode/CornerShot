@@ -23,6 +23,7 @@ import { useTheme } from '@mui/material/styles'
 import { useEffect, useState } from 'react'
 import API from 'src/pages/api'
 import formatCurrency from 'src/utils/formatCurrency'
+import formatTime from 'src/utils/formatTime'
 import FinancialSummary from './FinancialSummary'
 import FileDocumentOutline from 'mdi-material-ui/FileDocumentOutline'
 import AccountGroupOutline from 'mdi-material-ui/AccountGroupOutline'
@@ -768,7 +769,7 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
                       </StyledTableCell>
                       <StyledTableCell align='center'>{data.team.header.name}</StyledTableCell>
                       <StyledTableCell align='center'>{data.team.healer.name}</StyledTableCell>
-                      <StyledTableCell align='center'>{data.total_time}</StyledTableCell>
+                      <StyledTableCell align='center'>{formatTime(data.total_time)}</StyledTableCell>
                       <StyledTableCell align='center'>
                         {/* {data.current_time === 0 ? data.round_number - 1 : data.round_number} */}
                         {data.round_number}
@@ -814,7 +815,7 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
                       </StyledTableCell>
                       <StyledTableCell align='center'>{data.team.header.name}</StyledTableCell>
                       <StyledTableCell align='center'>{data.team.healer.name}</StyledTableCell>
-                      <StyledTableCell align='center'>{data.total_time}</StyledTableCell>
+                      <StyledTableCell align='center'>{formatTime(data.total_time)}</StyledTableCell>
                       <StyledTableCell align='center'>
                         {/* {data.current_time === 0 ? data.round_number - 1 : data.round_number} */}
                         {data.round_number}
@@ -1058,6 +1059,8 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
                     <StyledTableCell align='center'>Status</StyledTableCell>
                     <StyledTableCell align='center'>Round</StyledTableCell>
                     <StyledTableCell align='center'>Total Time</StyledTableCell>
+                    <StyledTableCell align='center'>Barrier Penalty</StyledTableCell>
+                    <StyledTableCell align='center'>Leg Penalty</StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1070,7 +1073,9 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
                           {team.status}
                         </StyledTableCell>
                         <StyledTableCell align='center'>{team.roundNumber ?? '-'}</StyledTableCell>
-                        <StyledTableCell align='center'>{team.totalTime ?? '-'}</StyledTableCell>
+                        <StyledTableCell align='center'>{formatTime(team.totalTime)}</StyledTableCell>
+                        <StyledTableCell align='center'>{team.barrierPenalty ? 'Yes' : team.barrierPenalty === null ? '-' : 'No'}</StyledTableCell>
+                        <StyledTableCell align='center'>{team.legPenalty ? 'Yes' : team.legPenalty === null ? '-' : 'No'}</StyledTableCell>
                       </StyledTableRow>
                     ))}
                 </TableBody>
@@ -1119,7 +1124,7 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
                         </StyledTableCell>
                         <StyledTableCell align='center'>{team.header}</StyledTableCell>
                         <StyledTableCell align='center'>{team.healer}</StyledTableCell>
-                        <StyledTableCell align='center'>{team.totalTime}</StyledTableCell>
+                        <StyledTableCell align='center'>{formatTime(team.totalTime)}</StyledTableCell>
                         <StyledTableCell align='center'>{team.tieIncluded ? 'Tie' : ''}</StyledTableCell>
                       </StyledTableRow>
                     ))}

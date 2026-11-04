@@ -447,11 +447,11 @@ const Add_Roping = ({ handleCheck }) => {
                         type='number'
                         onChange={handleRopingFinancialsChange}
                         inputProps={{ min: 0, step: 0.1 }}
+                        InputProps={{ endAdornment: <InputAdornment position='end'>%</InputAdornment> }}
                         required
                         name='stock_charge_percent'
                         value={ropingFinancials.stock_charge_percent}
-                        // label='Phone No.'
-                        placeholder='00'
+                        placeholder='0.0'
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -508,10 +508,11 @@ const Add_Roping = ({ handleCheck }) => {
                         type='number'
                         onChange={handleRopingFinancialsChange}
                         inputProps={{ min: 0, step: 0.1 }}
+                        InputProps={{ endAdornment: <InputAdornment position='end'>%</InputAdornment> }}
                         required
                         name='payback_percent'
                         value={ropingFinancials.payback_percent}
-                        placeholder='00'
+                        placeholder='0.0'
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>

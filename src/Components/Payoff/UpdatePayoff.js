@@ -10,6 +10,7 @@ import Select from '@mui/material/Select'
 import {
   Box,
   Divider,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Modal,
@@ -333,6 +334,7 @@ const UpdatePayoff = ({ check, flag }) => {
                                 type='number'
                                 size='small'
                                 inputProps={{ min: 0 }}
+                                InputProps={{ endAdornment: <InputAdornment position='end'>%</InputAdornment> }}
                                 value={split.payout_percentage}
                                 onChange={e => handleSplitPercentageChange(index, e.target.value)}
                                 placeholder='00'

@@ -251,7 +251,12 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
     <Card>
       <CardHeader title='Enter Draw' titleTypographyProps={{ variant: 'h6' }} />
       <CardContent>
-        <form>
+        <form
+          onSubmit={e => {
+            e.preventDefault()
+            handleAddButtonClick()
+          }}
+        >
           <Grid container spacing={5}>
             <Grid item xs={6} sm={3}>
               <Typography
@@ -366,7 +371,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
               </Grid>
             )}
             <Grid item xs={12} sm={3}>
-              <Button onClick={handleAddButtonClick} type='button' variant='contained' size='medium'>
+              <Button type='submit' variant='contained' size='medium'>
                 Add To Draw
               </Button>
             </Grid>
