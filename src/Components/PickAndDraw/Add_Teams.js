@@ -9,6 +9,7 @@ import CardContent from '@mui/material/CardContent'
 // ** Icons Imports
 import {
   Box,
+  Divider,
   FormControlLabel,
   FormHelperText,
   Modal,
@@ -244,16 +245,12 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
         <CardHeader title='Add Team' titleTypographyProps={{ variant: 'h6' }} />
         <CardContent>
           <form>
-            <Grid container spacing={5}>
-              <Grid item xs={6} sm={3}>
-                <Typography
-                  variant='body2'
-                  sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'end', paddingTop: '15px' }}
-                >
+            <Grid container spacing={4}>
+              {/* Header */}
+              <Grid item xs={12} sm={4}>
+                <Typography variant='body2' sx={{ fontWeight: 600, mb: 1 }}>
                   Header Name
                 </Typography>
-              </Grid>
-              <Grid item xs={6} sm={3}>
                 <ContestantAutocomplete
                   label='Header'
                   value={selectedHeader}
@@ -264,11 +261,9 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
                 />
               </Grid>
               <Grid item xs={6} sm={2}>
-                <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
+                <Typography variant='body2' sx={{ fontWeight: 600, mb: 1 }}>
                   Header Rating
                 </Typography>
-              </Grid>
-              <Grid item xs={6} sm={2}>
                 <TextField
                   fullWidth
                   onChange={handleHeaderHeaderRatingChange}
@@ -282,11 +277,9 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
                 />
               </Grid>
               <Grid item xs={6} sm={2}>
-                <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
-                  (Healer Rating)
+                <Typography variant='body2' sx={{ fontWeight: 600, mb: 1 }}>
+                  (Heeler Rating)
                 </Typography>
-              </Grid>
-              <Grid item xs={6} sm={2}>
                 <TextField
                   fullWidth
                   onChange={handleHeaderHealerRatingChange}
@@ -298,61 +291,10 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
                   placeholder='00'
                 />
               </Grid>
-              <Grid item xs={6} sm={3}>
-                <Typography
-                  variant='body2'
-                  sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'end', paddingTop: '15px' }}
-                >
-                  Healer Name
-                </Typography>
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <ContestantAutocomplete
-                  label='Healer'
-                  value={selectedHealer}
-                  onSelect={contestant => {
-                    setSelectedHealer(contestant)
-                    setHealerRatingsSaved(false)
-                  }}
-                />
-              </Grid>
-              <Grid item xs={6} sm={2}>
-                <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
-                  Heeler Rating
-                </Typography>
-              </Grid>
-              <Grid item xs={6} sm={2}>
-                <TextField
-                  fullWidth
-                  onChange={handleHealerHealerRatingChange}
-                  inputProps={{ min: 0 }}
-                  type='number'
-                  disabled={!selectedHealer}
-                  value={selectedHealer && selectedHealer.healer_rating !== null ? selectedHealer.healer_rating : ''}
-                  name='healer_rating'
-                  placeholder='00'
-                />
-              </Grid>
-              <Grid item xs={6} sm={2}>
-                <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
-                  (Header Rating)
-                </Typography>
-              </Grid>
-              <Grid item xs={6} sm={2}>
-                <TextField
-                  fullWidth
-                  onChange={handleHealerHeaderRatingChange}
-                  inputProps={{ min: 0 }}
-                  type='number'
-                  required
-                  disabled={!selectedHealer}
-                  value={selectedHealer && selectedHealer.header_rating !== null ? selectedHealer.header_rating : ''}
-                  placeholder='00'
-                />
-              </Grid>
-              {selectedHeader && selectedHeader.header_rating !== null && selectedHeader.healer_rating !== null && !headerRatingsSaved && (
-                <Grid item xs={6} sx={{ textAlign: 'center' }}>
+              <Grid item xs={12} sm={4} sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                {selectedHeader && selectedHeader.header_rating !== null && selectedHeader.healer_rating !== null && !headerRatingsSaved && (
                   <Button
+                    fullWidth
                     onClick={() =>
                       API.putAPICalling(`contestant/${selectedHeader.id}`, {
                         header_rating: selectedHeader.header_rating,
@@ -374,11 +316,61 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
                   >
                     Save header&apos;s ratings to profile
                   </Button>
-                </Grid>
-              )}
-              {selectedHealer && selectedHealer.header_rating !== null && selectedHealer.healer_rating !== null && !healerRatingsSaved && (
-                <Grid item xs={6} sx={{ textAlign: 'center' }}>
+                )}
+              </Grid>
+
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+
+              {/* Heeler */}
+              <Grid item xs={12} sm={4}>
+                <Typography variant='body2' sx={{ fontWeight: 600, mb: 1 }}>
+                  Heeler Name
+                </Typography>
+                <ContestantAutocomplete
+                  label='Heeler'
+                  value={selectedHealer}
+                  onSelect={contestant => {
+                    setSelectedHealer(contestant)
+                    setHealerRatingsSaved(false)
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6} sm={2}>
+                <Typography variant='body2' sx={{ fontWeight: 600, mb: 1 }}>
+                  Heeler Rating
+                </Typography>
+                <TextField
+                  fullWidth
+                  onChange={handleHealerHealerRatingChange}
+                  inputProps={{ min: 0 }}
+                  type='number'
+                  disabled={!selectedHealer}
+                  value={selectedHealer && selectedHealer.healer_rating !== null ? selectedHealer.healer_rating : ''}
+                  name='healer_rating'
+                  placeholder='00'
+                />
+              </Grid>
+              <Grid item xs={6} sm={2}>
+                <Typography variant='body2' sx={{ fontWeight: 600, mb: 1 }}>
+                  (Header Rating)
+                </Typography>
+                <TextField
+                  fullWidth
+                  onChange={handleHealerHeaderRatingChange}
+                  inputProps={{ min: 0 }}
+                  type='number'
+                  required
+                  disabled={!selectedHealer}
+                  value={selectedHealer && selectedHealer.header_rating !== null ? selectedHealer.header_rating : ''}
+                  placeholder='00'
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                {selectedHealer && selectedHealer.header_rating !== null && selectedHealer.healer_rating !== null && !healerRatingsSaved && (
                   <Button
+                    fullWidth
                     onClick={() =>
                       API.putAPICalling(`contestant/${selectedHealer.id}`, {
                         header_rating: selectedHealer.header_rating,
@@ -386,7 +378,7 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
                       })
                         .then(() => {
                           setHealerRatingsSaved(true)
-                          setMessage("Healer's ratings saved to profile")
+                          setMessage("Heeler's ratings saved to profile")
                           handleMessageOpen()
                         })
                         .catch(error => {
@@ -398,27 +390,32 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
                     variant='outlined'
                     size='small'
                   >
-                    Save healer&apos;s ratings to profile
+                    Save heeler&apos;s ratings to profile
                   </Button>
-                </Grid>
-              )}
-              <Grid item xs={12} sm={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Button onClick={handleAddTeam} type='button' variant='contained' size='medium'>
+                )}
+              </Grid>
+
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+
+              <Grid item xs={12} sm={3}>
+                <Button fullWidth onClick={handleAddTeam} type='button' variant='contained' size='medium'>
                   Add Team
                 </Button>
               </Grid>
-              <Grid item  xs={12} sm={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Button onClick={handleDeleteTeam} type='button' variant='contained' size='medium'>
+              <Grid item xs={12} sm={3}>
+                <Button fullWidth onClick={handleDeleteTeam} type='button' variant='contained' size='medium'>
                   Delete Team
                 </Button>
               </Grid>
-              <Grid item xs={12} sm={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Button onClick={handleListTeam} type='button' variant='contained' size='medium'>
+              <Grid item xs={12} sm={3}>
+                <Button fullWidth onClick={handleListTeam} type='button' variant='contained' size='medium'>
                   List all Teams
                 </Button>
               </Grid>
-              <Grid item xs={12} sm={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Button onClick={handleDrawOpen} type='button' variant='contained' size='medium'>
+              <Grid item xs={12} sm={3}>
+                <Button fullWidth onClick={handleDrawOpen} type='button' variant='contained' size='medium'>
                   List Draw Entries
                 </Button>
               </Grid>
@@ -499,8 +496,8 @@ const Add_Teams = ({ selectedRopingId, flag, setFlag, classification }) => {
                 <StyledTableCell component='th' scope='row' align='center'>
                   {draw.contestant.name}
                 </StyledTableCell>
-                <StyledTableCell align='center'>{draw.header_rating}</StyledTableCell>
-                <StyledTableCell align='center'>{draw.healer_rating}</StyledTableCell>
+                <StyledTableCell align='center'>{draw.header_rating === null || draw.header_rating === undefined ? 'Not set' : draw.header_rating}</StyledTableCell>
+                <StyledTableCell align='center'>{draw.healer_rating === null || draw.healer_rating === undefined ? 'Not set' : draw.healer_rating}</StyledTableCell>
                 <StyledTableCell align='center'>{draw.header_entries}</StyledTableCell>
                 <StyledTableCell align='center'>{draw.healer_entries}</StyledTableCell>
               </StyledTableRow>

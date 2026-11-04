@@ -424,8 +424,8 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {const theme = us
                 <StyledTableCell component='th' scope='row' align='center'>
                   {draw.contestant.name}
                 </StyledTableCell>
-                <StyledTableCell align='center'>{draw.header_rating}</StyledTableCell>
-                <StyledTableCell align='center'>{draw.healer_rating}</StyledTableCell>
+                <StyledTableCell align='center'>{draw.header_rating === null || draw.header_rating === undefined ? 'Not set' : draw.header_rating}</StyledTableCell>
+                <StyledTableCell align='center'>{draw.healer_rating === null || draw.healer_rating === undefined ? 'Not set' : draw.healer_rating}</StyledTableCell>
                 <StyledTableCell align='center'>{draw.header_entries}</StyledTableCell>
                 <StyledTableCell align='center'>{draw.healer_entries}</StyledTableCell>
               </StyledTableRow>

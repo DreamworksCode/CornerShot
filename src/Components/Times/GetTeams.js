@@ -49,7 +49,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   }
 }))
 
-const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpdate,setTeamsForUpdate, flag, setFlag }) => {
+const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpdate,setTeamsForUpdate, flag, setFlag, payoutComplete }) => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const style = {
@@ -181,6 +181,11 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
     <>
       <Card>
         <CardContent>
+          {payoutComplete && (
+            <Typography variant='body2' color='error' sx={{ fontWeight: 600, mb: 2 }}>
+              This roping's payout has been marked complete — time entry is disabled.
+            </Typography>
+          )}
           <form>
             <Grid container spacing={5}>
               <Grid item xs={12} sx={{ margin: '20px' }}>
@@ -190,7 +195,7 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
                       <TableRow>
                         <StyledTableCell>Team No.</StyledTableCell>
                         <StyledTableCell align='center'>Header Name</StyledTableCell>
-                        <StyledTableCell align='center'>Healer Name</StyledTableCell>
+                        <StyledTableCell align='center'>Heeler Name</StyledTableCell>
                         <StyledTableCell align='center'>Add Time</StyledTableCell>
                       </TableRow>
                     </TableHead>
@@ -198,7 +203,7 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
                       {teams.map((team, index) => (
                         <StyledTableRow key={index}>
                           <StyledTableCell component='th' scope='row'>
-                            {index + 1}
+                            {team.team_number !== undefined && team.team_number !== null ? team.team_number : index + 1}
                           </StyledTableCell>
                           <StyledTableCell align='center'>{team.header.name}</StyledTableCell>
                           <StyledTableCell align='center'>{team.healer.name}</StyledTableCell>
@@ -210,6 +215,7 @@ const GetTeams = ({ teams, check ,round, selectedRopingId, setTeams, teamsForUpd
                               variant='outlined'
                               size='medium'
                               sx={{ color: 'white' }}
+                              disabled={payoutComplete}
                             >
                               ADD
                             </Button>

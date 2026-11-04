@@ -8,7 +8,7 @@ import Divider from '@mui/material/Divider'
 
 import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
-import { Box, Checkbox, FormControlLabel, InputLabel, MenuItem, Modal, Typography, useMediaQuery } from '@mui/material'
+import { Box, Checkbox, FormControlLabel, InputAdornment, InputLabel, MenuItem, Modal, Typography, useMediaQuery } from '@mui/material'
 
 // ** Icons Imports
 import Phone from 'mdi-material-ui/Phone'
@@ -219,6 +219,9 @@ const Roping_information = ({check}) => {
       // stock_charge_percent / payback_percent / ratings accept decimals (e.g. 33.3) - do not truncate to int
       const toFloat = val => (val !== null && val !== '' && val !== undefined ? parseFloat(val) : null)
 
+      // dollar fields are optional - an empty field means $0, not "unset"
+      const toDollar = val => (val !== null && val !== '' && val !== undefined ? parseInt(val, 10) : 0)
+
       // Send only the editable fields as properly typed numbers. The values held
       // in state come from text inputs (strings) and, on the update form, also
       // carry backend-only fields (id/created_at/updated_at) loaded with the
@@ -240,11 +243,11 @@ const Roping_information = ({check}) => {
         classification: toFloat(ropingRules.classification)
       }
       const parsedRopingFinancials = {
-        entry_fees: toInt(ropingFinancials.entry_fees),
+        entry_fees: toDollar(ropingFinancials.entry_fees),
         stock_charge_percent: toFloat(ropingFinancials.stock_charge_percent),
-        association_fees: toInt(ropingFinancials.association_fees),
-        price_deduction: toInt(ropingFinancials.price_deduction),
-        added_money: toInt(ropingFinancials.added_money),
+        association_fees: toDollar(ropingFinancials.association_fees),
+        price_deduction: toDollar(ropingFinancials.price_deduction),
+        added_money: toDollar(ropingFinancials.added_money),
         payback_percent: toFloat(ropingFinancials.payback_percent)
       }
       const rc = ropingClassification || {}
@@ -469,12 +472,12 @@ const Roping_information = ({check}) => {
               <TextField
                 fullWidth
                 type='number'
-                onChange={handleRopingFinancialsChange}inputProps={{ min: 0 }}
-                required
+                onChange={handleRopingFinancialsChange}
+                inputProps={{ min: 0 }}
+                InputProps={{ startAdornment: <InputAdornment position='start'>$</InputAdornment> }}
                 name='entry_fees'
                 value={ropingFinancials.entry_fees}
-                // label='Phone No.'
-                placeholder='00'
+                placeholder='0.00'
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -495,17 +498,17 @@ const Roping_information = ({check}) => {
             </Grid>
             <Grid item xs={12} sm={6}>
               <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
-                Assosiation Fee(Per Team)
+                Association Fee(Per Team)
               </Typography>
               <TextField
                 fullWidth
                 type='number'
-                onChange={handleRopingFinancialsChange}inputProps={{ min: 0 }}
-                required
+                onChange={handleRopingFinancialsChange}
+                inputProps={{ min: 0 }}
+                InputProps={{ startAdornment: <InputAdornment position='start'>$</InputAdornment> }}
                 name='association_fees'
                 value={ropingFinancials.association_fees}
-                // label='Phone No.'
-                placeholder='00'
+                placeholder='0.00'
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -516,11 +519,11 @@ const Roping_information = ({check}) => {
                 fullWidth
                 type='number'
                 name='price_deduction'
-                onChange={handleRopingFinancialsChange}inputProps={{ min: 0 }}
-                required
+                onChange={handleRopingFinancialsChange}
+                inputProps={{ min: 0 }}
+                InputProps={{ startAdornment: <InputAdornment position='start'>$</InputAdornment> }}
                 value={ropingFinancials.price_deduction}
-                // label='Phone No.'
-                placeholder='00'
+                placeholder='0.00'
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -531,11 +534,11 @@ const Roping_information = ({check}) => {
                 fullWidth
                 type='number'
                 name='added_money'
-                onChange={handleRopingFinancialsChange}inputProps={{ min: 0 }}
-                required
+                onChange={handleRopingFinancialsChange}
+                inputProps={{ min: 0 }}
+                InputProps={{ startAdornment: <InputAdornment position='start'>$</InputAdornment> }}
                 value={ropingFinancials.added_money}
-                // label='Phone No.'
-                placeholder='00'
+                placeholder='0.00'
               />
             </Grid>
             <Grid item xs={12} sm={6}>

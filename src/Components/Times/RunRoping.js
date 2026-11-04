@@ -87,6 +87,7 @@ const RunRoping = ({ roping, selectedRopingId }) => {
   const [arrangeMode, setArrangeMode] = useState('FIRST_IN_FIRST_ROPE')
   const [runRopingData, setRunRopingData] = useState(null)
   const [refreshFlag, setRefreshFlag] = useState(false)
+  const [payoutComplete, setPayoutComplete] = useState(false)
 
   const [message, setMessage] = useState('')
   const [messageOpen, setMessageOpen] = useState(false)
@@ -114,6 +115,19 @@ const RunRoping = ({ roping, selectedRopingId }) => {
       setRunRopingData(null)
     }
   }, [selectedRopingId, round, refreshFlag])
+
+  useEffect(async () => {
+    if (!selectedRopingId) {
+      return
+    }
+    const token = localStorage.getItem('token')
+    try {
+      const response = await API.getAPICalling(`Reports/financial-summary/${selectedRopingId}`, token)
+      setPayoutComplete(response.payoutStatus === 'COMPLETE')
+    } catch (error) {
+      setPayoutComplete(false)
+    }
+  }, [selectedRopingId, refreshFlag])
 
   const handleRoundChange = e => {
     setRound(Number(e.target.value))
@@ -243,6 +257,13 @@ const RunRoping = ({ roping, selectedRopingId }) => {
               />
             </Grid>
 
+            {payoutComplete && (
+              <Grid item xs={12}>
+                <Typography variant='body2' color='error' sx={{ fontWeight: 600 }}>
+                  This roping's payout has been marked complete — time entry is disabled.
+                </Typography>
+              </Grid>
+            )}
             <Grid item xs={12}>
               <Typography variant='body2' sx={{ fontWeight: 600, fontSize: '18px', marginTop: '10px' }}>
                 You&apos;re Up
@@ -253,7 +274,7 @@ const RunRoping = ({ roping, selectedRopingId }) => {
                     Team {runRopingData.currentTeam.teamNumber}: {runRopingData.currentTeam.header} /{' '}
                     {runRopingData.currentTeam.healer}
                   </Typography>
-                  <Button onClick={handleAddTimeClick} type='button' variant='contained' size='medium'>
+                  <Button onClick={handleAddTimeClick} type='button' variant='contained' size='medium' disabled={payoutComplete}>
                     Add Time
                   </Button>
                 </Box>

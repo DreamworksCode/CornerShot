@@ -2,9 +2,10 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import {
   Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
+  Card,
+  CardContent,
+  CardHeader,
+  Divider,
   Modal,
   Paper,
   Table,
@@ -18,10 +19,20 @@ import {
   tableCellClasses,
   useMediaQuery
 } from '@mui/material'
-import Select from '@mui/material/Select'
 import { useTheme } from '@mui/material/styles'
 import { useEffect, useState } from 'react'
 import API from 'src/pages/api'
+import formatCurrency from 'src/utils/formatCurrency'
+import FinancialSummary from './FinancialSummary'
+import FileDocumentOutline from 'mdi-material-ui/FileDocumentOutline'
+import AccountGroupOutline from 'mdi-material-ui/AccountGroupOutline'
+import ClipboardTextOutline from 'mdi-material-ui/ClipboardTextOutline'
+import TimerOutline from 'mdi-material-ui/TimerOutline'
+import FormatListNumbered from 'mdi-material-ui/FormatListNumbered'
+import TrophyOutline from 'mdi-material-ui/TrophyOutline'
+import FormatListNumberedRtl from 'mdi-material-ui/FormatListNumberedRtl'
+import ChartBoxOutline from 'mdi-material-ui/ChartBoxOutline'
+import ScaleBalance from 'mdi-material-ui/ScaleBalance'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -87,8 +98,6 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
     overflowY: 'auto',
     maxHeight: 600
   }
-  const [selectedReport, setSelectedReport] = useState(1)
-
   const [message, setMessage] = useState('')
   const [messageOpen, setMessageOpen] = useState(false)
   const handleMessageOpen = () => {
@@ -151,185 +160,197 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
   const handleShortRoundClose = () => setShortRoundOpen(false)
   const [shortRoundData, setShortRoundData] = useState(null)
 
-  const handleChange = e => {
-    const { value } = e.target
-    setSelectedReport(Number(value))
+  const fetchContestantByName = async () => {
+    try {
+      const response = await API.getAPICalling(`Reports/ContestantsByNames/${selectedRopingId}`)
+      console.log(response)
+      setContestants(response)
+      handleContestantOpen()
+    } catch (error) {
+      console.log('Some error:  ', error)
+      setMessage(error.message)
+      handleMessageOpen()
+    }
   }
 
-  const handleSubmit = async () => {
-    if (selectedReport === 1) {
-      try {
-        const response = await API.getAPICalling(`Reports/ContestantsByNames/${selectedRopingId}`)
-        console.log(response)
-        setContestants(response)
-        handleContestantOpen()
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setMessage(error.message)
-        handleMessageOpen()
-      }
-    } else if (selectedReport === 2) {
-      try {
-        const response = await API.getAPICalling(`draw-entries/getDraw/${selectedRopingId}`)
-        console.log(response)
-        setDrawEntries(response)
-        handleDrawOpen()
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setMessage(error.message)
-        handleMessageOpen()
-      }
-    } else if (selectedReport === 3) {
-      try {
-        const response = await API.getAPICalling(`Team-Times/max-rounds?roping_id=${selectedRopingId}`)
-        response.forEach(item => {
-          if (item.current_time === 0) {
-            item.round_number -= 1
-          }
-        })
+  const fetchDrawEntries = async () => {
+    try {
+      const response = await API.getAPICalling(`draw-entries/getDraw/${selectedRopingId}`)
+      console.log(response)
+      setDrawEntries(response)
+      handleDrawOpen()
+    } catch (error) {
+      console.log('Some error:  ', error)
+      setMessage(error.message)
+      handleMessageOpen()
+    }
+  }
 
-        // Sort by round_number (descending), then by total_time (ascending)
-        response.sort((a, b) => {
-          if (b.round_number !== a.round_number) {
-            return b.round_number - a.round_number
-          } else {
-            return a.total_time - b.total_time
-          }
-        })
-
-        setAverageData(response)
-        handleAverageOpen()
-        console.log(response)
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setAverageData([])
-        setMessage(error.message)
-        handleMessageOpen()
-      }
-    } else if (selectedReport === 4) {
-      try {
-        const response = await API.getAPICalling(`Team-Times/max-rounds?roping_id=${selectedRopingId}`)
-        response.forEach(item => {
-          if (item.current_time === 0) {
-            item.round_number -= 1
-          }
-        })
-
-        // Sort by round_number (descending), then by total_time (ascending)
-        response.sort((a, b) => {
-          if (b.round_number !== a.round_number) {
-            return b.round_number - a.round_number
-          } else {
-            return a.total_time - b.total_time
-          }
-        })
-        if (selectedPayoff === null) {
-          setMessage('No payoffs for this production')
-          handleMessageOpen()
-        } else {
-          const limitedResponse = response.slice(0, selectedPayoff.payoff.places_to_pay)
-          setPayoffData(limitedResponse)
-
-          // setAverageData(response)
-          handleResultsPayoffOpen()
+  const fetchResults = async () => {
+    try {
+      const response = await API.getAPICalling(`Team-Times/max-rounds?roping_id=${selectedRopingId}`)
+      response.forEach(item => {
+        if (item.current_time === 0) {
+          item.round_number -= 1
         }
-        console.log(response)
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setAverageData([])
-        setMessage(error.message)
+      })
+
+      // Sort by round_number (descending), then by total_time (ascending)
+      response.sort((a, b) => {
+        if (b.round_number !== a.round_number) {
+          return b.round_number - a.round_number
+        } else {
+          return a.total_time - b.total_time
+        }
+      })
+
+      setAverageData(response)
+      handleAverageOpen()
+      console.log(response)
+    } catch (error) {
+      console.log('Some error:  ', error)
+      setAverageData([])
+      setMessage(error.message)
+      handleMessageOpen()
+    }
+  }
+
+  const fetchResultsWithPayoff = async () => {
+    try {
+      const response = await API.getAPICalling(`Team-Times/max-rounds?roping_id=${selectedRopingId}`)
+      response.forEach(item => {
+        if (item.current_time === 0) {
+          item.round_number -= 1
+        }
+      })
+
+      // Sort by round_number (descending), then by total_time (ascending)
+      response.sort((a, b) => {
+        if (b.round_number !== a.round_number) {
+          return b.round_number - a.round_number
+        } else {
+          return a.total_time - b.total_time
+        }
+      })
+      if (selectedPayoff === null) {
+        setMessage('No payoffs for this production')
         handleMessageOpen()
+      } else {
+        const limitedResponse = response.slice(0, selectedPayoff.payoff.places_to_pay)
+        setPayoffData(limitedResponse)
+
+        // setAverageData(response)
+        handleResultsPayoffOpen()
       }
-    } else if (selectedReport === 5) {
-      let value = roping.type
-      let type
-      switch (value) {
-        case 'Draw Pot':
-          type = 'Draw_Pot'
-          break
-        case 'Round Robin':
-          type = 'Round_Robin'
-          break
-        case 'Pick Only':
-          type = 'Pick_Only'
-          break
-        case 'Pick or Draw':
-          type = 'Pick_Or_Draw'
-          break
-        case 'Pick & Draw':
-          type = 'Pick_And_Draw'
-          break
-        default:
-          type = 'Draw_Pot'
-      }
-      try {
-        const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=${type}`)
-        // console.log("For round numeber ", round ," the teams are :",response);
-        setTeams(response)
-        handleTeamOpen()
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setTeams([])
-        setMessage(error.message)
-        handleMessageOpen()
-      }
-    } else if (selectedReport === 6) {
-      try {
-        const response = await API.getAPICalling(`Reports/teams-handicap/${selectedRopingId}`)
-        setTimerteams(response)
-        handleTimerSheetOpen()
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setTimerteams([])
-        setMessage(error.message)
-        handleMessageOpen()
-      }
-    } else if (selectedReport === 7) {
-      try {
-        const response = await API.getAPICalling(`Reports/teams-handicap/${selectedRopingId}`)
-        setTeamsWithHandicap(response)
-        handleTimerSheetWithHandicapOpen()
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setTeamsWithHandicap([])
-        setMessage(error.message)
-        handleMessageOpen()
-      }
-    } else if (selectedReport === 8) {
-      try {
-        const response = await API.getAPICalling(`Reports/rating-adjustment/${selectedRopingId}`)
-        setRatingAdjustmentData(response)
-        handleRatingAdjustmentOpen()
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setRatingAdjustmentData([])
-        setMessage(error.message)
-        handleMessageOpen()
-      }
-    } else if (selectedReport === 9) {
-      try {
-        const response = await API.getAPICalling(`Reports/standings/${selectedRopingId}`)
-        setStandingsData(response)
-        handleStandingsOpen()
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setStandingsData(null)
-        setMessage(error.message)
-        handleMessageOpen()
-      }
-    } else if (selectedReport === 10) {
-      try {
-        const response = await API.getAPICalling(`Reports/short-round/${selectedRopingId}`)
-        setShortRoundData(response)
-        handleShortRoundOpen()
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setShortRoundData(null)
-        setMessage(error.message)
-        handleMessageOpen()
-      }
-    }else {
-      setMessage('Please select a type first')
+      console.log(response)
+    } catch (error) {
+      console.log('Some error:  ', error)
+      setAverageData([])
+      setMessage(error.message)
+      handleMessageOpen()
+    }
+  }
+
+  const fetchTeamsByNumber = async () => {
+    let value = roping.type
+    let type
+    switch (value) {
+      case 'Draw Pot':
+        type = 'Draw_Pot'
+        break
+      case 'Round Robin':
+        type = 'Round_Robin'
+        break
+      case 'Pick Only':
+        type = 'Pick_Only'
+        break
+      case 'Pick or Draw':
+        type = 'Pick_Or_Draw'
+        break
+      case 'Pick & Draw':
+        type = 'Pick_And_Draw'
+        break
+      default:
+        type = 'Draw_Pot'
+    }
+    try {
+      const response = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=${type}`)
+      // console.log("For round numeber ", round ," the teams are :",response);
+      setTeams(response)
+      handleTeamOpen()
+    } catch (error) {
+      console.log('Some error:  ', error)
+      setTeams([])
+      setMessage(error.message)
+      handleMessageOpen()
+    }
+  }
+
+  const fetchTimerSheet = async () => {
+    try {
+      const response = await API.getAPICalling(`Reports/teams-handicap/${selectedRopingId}`)
+      setTimerteams(response)
+      handleTimerSheetOpen()
+    } catch (error) {
+      console.log('Some error:  ', error)
+      setTimerteams([])
+      setMessage(error.message)
+      handleMessageOpen()
+    }
+  }
+
+  const fetchTimeSheetWithHandicap = async () => {
+    try {
+      const response = await API.getAPICalling(`Reports/teams-handicap/${selectedRopingId}`)
+      setTeamsWithHandicap(response)
+      handleTimerSheetWithHandicapOpen()
+    } catch (error) {
+      console.log('Some error:  ', error)
+      setTeamsWithHandicap([])
+      setMessage(error.message)
+      handleMessageOpen()
+    }
+  }
+
+  const fetchRatingAdjustment = async () => {
+    try {
+      const response = await API.getAPICalling(`Reports/rating-adjustment/${selectedRopingId}`)
+      setRatingAdjustmentData(response)
+      handleRatingAdjustmentOpen()
+    } catch (error) {
+      console.log('Some error:  ', error)
+      setRatingAdjustmentData([])
+      setMessage(error.message)
+      handleMessageOpen()
+    }
+  }
+
+  const fetchStandings = async () => {
+    try {
+      const response = await API.getAPICalling(`Reports/standings/${selectedRopingId}`)
+      setStandingsData(response)
+      handleStandingsOpen()
+    } catch (error) {
+      console.log('Some error:  ', error)
+      setStandingsData(null)
+      setMessage(error.message)
+      handleMessageOpen()
+    }
+  }
+
+  const fetchShortRound = async () => {
+    try {
+      const response = await API.getAPICalling(`Reports/short-round/${selectedRopingId}`)
+      setShortRoundData(response)
+      handleShortRoundOpen()
+    } catch (error) {
+      console.log('Some error:  ', error)
+      setShortRoundData(null)
+      setMessage(
+        error.message && error.message.toLowerCase().includes('1-round')
+          ? 'Short Round is not available for a 1-round roping.'
+          : error.message
+      )
       handleMessageOpen()
     }
   }
@@ -510,39 +531,86 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
 
   return (
     <>
-      <Grid item xs={6} sm={2}>
-        <Typography variant='body2' sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'start', paddingTop: '15px' }}>
-          Report Type
-        </Typography>
-      </Grid>
-      <Grid item xs={6} sm={7}>
-        <FormControl fullWidth>
-          <InputLabel id='form-layouts-separator-select-label'>Type</InputLabel>
-          <Select
-            label='Country'
-            defaultValue=''
-            value={`${selectedReport}`}
-            onChange={handleChange}
-            id='form-layouts-separator-select'
-            labelId='form-layouts-separator-select-label'
-          >
-            <MenuItem value='1'>Contestant by Name</MenuItem>
-            <MenuItem value='2'>Draw Entries</MenuItem>
-            <MenuItem value='3'>Results</MenuItem>
-            <MenuItem value='4'>Results with Payoff</MenuItem>
-            <MenuItem value='5'>Teams by number</MenuItem>
-            <MenuItem value='6'>Timer Sheet</MenuItem>
-            <MenuItem value='7'>Time Sheet with Handicap</MenuItem>
-            <MenuItem value='8'>Rating Adjustment Preview</MenuItem>
-            <MenuItem value='9'>Standings</MenuItem>
-            <MenuItem value='10'>Short Round</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={12} sm={3}>
-        <Button type='button' onClick={handleSubmit} variant='contained' size='large'>
-          Get Report
-        </Button>
+      <Grid item xs={12}>
+        <Card>
+          <CardHeader title='Roping Reports' titleTypographyProps={{ variant: 'h6' }} />
+          <CardContent>
+            <Typography variant='overline' color='text.secondary' sx={{ fontWeight: 700 }}>
+              Entries &amp; Teams
+            </Typography>
+            <Grid container spacing={3} sx={{ mt: 0, mb: 3 }}>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchDrawEntries} variant='outlined' size='medium' startIcon={<FileDocumentOutline />}>
+                  Draw Sheet
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchTeamsByNumber} variant='outlined' size='medium' startIcon={<AccountGroupOutline />}>
+                  Teams by Number
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchContestantByName} variant='outlined' size='medium' startIcon={<ClipboardTextOutline />}>
+                  Contestant by Name
+                </Button>
+              </Grid>
+            </Grid>
+
+            <Divider />
+
+            <Typography variant='overline' color='text.secondary' sx={{ fontWeight: 700, mt: 3, display: 'block' }}>
+              Time &amp; Results
+            </Typography>
+            <Grid container spacing={3} sx={{ mt: 0, mb: 3 }}>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchTimerSheet} variant='outlined' size='medium' startIcon={<TimerOutline />}>
+                  Time Sheet
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchTimeSheetWithHandicap} variant='outlined' size='medium' startIcon={<TimerOutline />}>
+                  Time Sheet (Handicap)
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchResults} variant='outlined' size='medium' startIcon={<FormatListNumbered />}>
+                  Results
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchStandings} variant='outlined' size='medium' startIcon={<TrophyOutline />}>
+                  Standings
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchShortRound} variant='outlined' size='medium' startIcon={<FormatListNumberedRtl />}>
+                  Short Round
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchRatingAdjustment} variant='outlined' size='medium' startIcon={<ChartBoxOutline />}>
+                  Rating Adjustment Preview
+                </Button>
+              </Grid>
+            </Grid>
+
+            <Divider />
+
+            <Typography variant='overline' color='text.secondary' sx={{ fontWeight: 700, mt: 3, display: 'block' }}>
+              Payoff &amp; Financials
+            </Typography>
+            <Grid container spacing={3} sx={{ mt: 0 }}>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchResultsWithPayoff} variant='outlined' size='medium' startIcon={<ScaleBalance />}>
+                  Payoff
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={4} md={3}>
+                <FinancialSummary selectedRopingId={selectedRopingId} />
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
       </Grid>
 
       {/* Modal for Message Display */}
@@ -656,8 +724,8 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
                       <StyledTableCell component='th' scope='row' align='center'>
                         {draw.contestant.name}
                       </StyledTableCell>
-                      <StyledTableCell align='center'>{draw.header_rating}</StyledTableCell>
-                      <StyledTableCell align='center'>{draw.healer_rating}</StyledTableCell>
+                      <StyledTableCell align='center'>{draw.header_rating === null || draw.header_rating === undefined ? 'Not set' : draw.header_rating}</StyledTableCell>
+                      <StyledTableCell align='center'>{draw.healer_rating === null || draw.healer_rating === undefined ? 'Not set' : draw.healer_rating}</StyledTableCell>
                       <StyledTableCell align='center'>{draw.header_entries}</StyledTableCell>
                       <StyledTableCell align='center'>{draw.healer_entries}</StyledTableCell>
                     </StyledTableRow>
@@ -752,11 +820,13 @@ const GetRopingReports = ({ selectedRopingId, roping, selectedPayoff, payoffId, 
                         {data.round_number}
                       </StyledTableCell>
                       <StyledTableCell align='center'>
-                        {individual
-                          ? isChecked
-                            ? Math.ceil(payoffEntry.distributedValues[index] / 2)
-                            : payoffEntry.distributedValues[index] / 2
-                          : payoffEntry.distributedValues[index]}
+                        {formatCurrency(
+                          individual
+                            ? isChecked
+                              ? Math.ceil(payoffEntry.distributedValues[index] / 2)
+                              : payoffEntry.distributedValues[index] / 2
+                            : payoffEntry.distributedValues[index]
+                        )}
                       </StyledTableCell>
                     </StyledTableRow>
                   ))}

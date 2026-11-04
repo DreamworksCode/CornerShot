@@ -206,7 +206,7 @@ const Contestant_Table = ({ contestant, setContestant }) => {
           <TableHead>
             <TableRow>
               <StyledTableCell>Name</StyledTableCell>
-              <StyledTableCell align='center'>Healer Rating</StyledTableCell>
+              <StyledTableCell align='center'>Heeler Rating</StyledTableCell>
               <StyledTableCell align='center'>Header Rating</StyledTableCell>
               <StyledTableCell align='center'>Update</StyledTableCell>
               <StyledTableCell align='center'>Delete</StyledTableCell>
@@ -218,8 +218,12 @@ const Contestant_Table = ({ contestant, setContestant }) => {
                 <StyledTableCell component='th' scope='row'>
                   {person.name}
                 </StyledTableCell>
-                <StyledTableCell align='center'>{person.healer_rating}</StyledTableCell>
-                <StyledTableCell align='center'>{person.header_rating}</StyledTableCell>
+                <StyledTableCell align='center'>
+                  {person.healer_rating === null || person.healer_rating === undefined ? 'Not set' : person.healer_rating}
+                </StyledTableCell>
+                <StyledTableCell align='center'>
+                  {person.header_rating === null || person.header_rating === undefined ? 'Not set' : person.header_rating}
+                </StyledTableCell>
                 <StyledTableCell
                   sx={{}}
                   onClick={() => handleEdit(person.id)}
@@ -322,7 +326,7 @@ const Contestant_Table = ({ contestant, setContestant }) => {
                     </Grid>
                     <Grid item xs={6} sm={2}>
                       <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'center', paddingTop: '15px' }}>
-                        Healer rating:
+                        Heeler rating:
                       </Typography>
                     </Grid>
                     <Grid item xs={6} sm={3}>

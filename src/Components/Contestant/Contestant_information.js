@@ -254,7 +254,7 @@ const Contestant_information = ({setContestant}) => {
             </Grid>
             <Grid item xs={6} sm={2}>
             <Typography variant='body2' sx={{ fontWeight: 600, textAlign:"center", paddingTop:"15px" }}>
-                Healer rating:
+                Heeler rating:
               </Typography>
             </Grid>
             <Grid item xs={6} sm={3}>

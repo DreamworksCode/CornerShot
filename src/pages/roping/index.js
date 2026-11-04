@@ -4,6 +4,8 @@ import API from '../api';
 import router from 'next/router';
 import Add_Roping from 'src/Components/Roping/Add_Roping';
 import Roping_information from 'src/Components/Roping/Roping_information';
+import RopingTypeInfo from 'src/Components/Roping/RopingTypeInfo';
+import CopyRoping from 'src/Components/Roping/CopyRoping';
 
 const RopingInformation = () => {
   const [check, setCheck] = useState(false);
@@ -53,6 +55,10 @@ const RopingInformation = () => {
       <Add_Roping handleCheck={handleCheck} />
       <Divider sx={{ my: 5 }}>Update Roping</Divider>
       <Roping_information check={check} />
+      <Divider sx={{ my: 5 }}>Copy a Roping</Divider>
+      <CopyRoping handleCheck={handleCheck} check={check} />
+      <Divider sx={{ my: 5 }}>Roping Type Information</Divider>
+      <RopingTypeInfo />
     </div>
   );
 };

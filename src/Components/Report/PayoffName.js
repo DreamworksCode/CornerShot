@@ -2,6 +2,9 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import {
   Box,
+  Card,
+  CardContent,
+  CardHeader,
   FormControl,
   InputLabel,
   MenuItem,
@@ -23,6 +26,7 @@ import { useEffect, useState } from 'react'
 import API from 'src/pages/api'
 import { useTheme } from '@mui/material/styles'
 import dynamic from 'next/dynamic';
+import formatCurrency from 'src/utils/formatCurrency';
 
 const html2pdf = dynamic(() => import('html2pdf.js'), { ssr: false });
 
@@ -157,34 +161,38 @@ const PayoffName = ({ setPayoffId, payoffId, isChecked, roping, individual, setS
 
   return (
     <>
-      <Grid item xs={6} sm={2}>
-        <Typography variant='body2' sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'start', paddingTop: '15px' }}>
-          Payoff name
-        </Typography>
-      </Grid>
-      <Grid item xs={6} sm={7}>
-        <FormControl fullWidth>
-          <InputLabel id='form-layouts-separator-select-label'>Payoff</InputLabel>
-          <Select
-            label='Country'
-            defaultValue=''
-            // value={payoffId}
-            onChange={handleChange}
-            id='form-layouts-separator-select'
-            labelId='form-layouts-separator-select-label'
-          >
-            {payoffs.map(payoff => (
-              <MenuItem key={payoff.payoff.id} value={payoff.payoff.id}>
-                {payoff.payoff.payoff_name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={12} sm={3}>
-        <Button type='button' onClick={handleSubmit} variant='contained' size='large'>
-          View Payoff
-        </Button>
+      <Grid item xs={12}>
+        <Card>
+          <CardHeader title='Payoff' titleTypographyProps={{ variant: 'h6' }} />
+          <CardContent>
+            <Grid container spacing={5}>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel id='form-layouts-separator-select-label'>Payoff</InputLabel>
+                  <Select
+                    label='Payoff'
+                    defaultValue=''
+                    // value={payoffId}
+                    onChange={handleChange}
+                    id='form-layouts-separator-select'
+                    labelId='form-layouts-separator-select-label'
+                  >
+                    {payoffs.map(payoff => (
+                      <MenuItem key={payoff.payoff.id} value={payoff.payoff.id}>
+                        {payoff.payoff.payoff_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={3} sx={{ display: 'flex', alignItems: 'center' }}>
+                <Button fullWidth type='button' onClick={handleSubmit} variant='contained' size='large'>
+                  View Payoff
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
       </Grid>
 
       {/* Modal for Message Display */}
@@ -221,10 +229,10 @@ const PayoffName = ({ setPayoffId, payoffId, isChecked, roping, individual, setS
               {roping.name}
             </Typography>
             <Typography id='modal-modal-description' sx={{ mt: 2, mb: 3, fontSize: '16px', textAlign: 'center' }}>
-              Total Payoff:- {payoffData && payoffData.finalTotalPayoff}
+              Total Payoff:- {payoffData && formatCurrency(payoffData.finalTotalPayoff)}
             </Typography>
             <Typography id='modal-modal-description' sx={{ mt: 2, mb: 3, fontSize: '16px', textAlign: 'center' }}>
-              Stock Charge:- {payoffData && payoffData.stockChargeValue}
+              Stock Charge:- {payoffData && formatCurrency(payoffData.stockChargeValue)}
             </Typography>
             <TableContainer component={Paper}>
               <Table sx={{ minWidth: 500 }} aria-label='customized table'>
@@ -242,7 +250,7 @@ const PayoffName = ({ setPayoffId, payoffId, isChecked, roping, individual, setS
                           {index + 1}
                         </StyledTableCell>
                         <StyledTableCell align='center'>
-                          {individual ? (isChecked ? Math.ceil(data / 2) : data / 2) : data}
+                          {formatCurrency(individual ? (isChecked ? Math.ceil(data / 2) : data / 2) : data)}
                         </StyledTableCell>
                       </StyledTableRow>
                     ))}

@@ -2,9 +2,9 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import {
   Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
+  Card,
+  CardContent,
+  CardHeader,
   Modal,
   Paper,
   Table,
@@ -16,10 +16,12 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material'
-import Select from '@mui/material/Select'
 import { useEffect, useState } from 'react'
 import API from 'src/pages/api'
 import { useTheme } from '@mui/material/styles'
+import formatCurrency from 'src/utils/formatCurrency'
+import CashMultiple from 'mdi-material-ui/CashMultiple'
+import TrophyOutline from 'mdi-material-ui/TrophyOutline'
 
 const GetProductionReports = ({ selectedPayoff, isChecked }) => {
   const theme = useTheme()
@@ -54,8 +56,6 @@ const GetProductionReports = ({ selectedPayoff, isChecked }) => {
     setMessageOpen(false)
   }
 
-  const [selectedType, setSelectedType] = useState(1)
-
   const [contestantFeesOpen, setContestantFeesOpen] = useState(false)
   const handleContestantFeesOpen = () => setContestantFeesOpen(true)
   const handleContestantFeesClose = () => setContestantFeesOpen(false)
@@ -66,39 +66,34 @@ const GetProductionReports = ({ selectedPayoff, isChecked }) => {
   const handleContestantWinningsClose = () => setContestantWinningsOpen(false)
   const [contestantWinnings, setContestantWinnings] = useState([])
 
-  const handleChange = e => {
-    const { value } = e.target
-    setSelectedType(Number(value))
+  const fetchContestantFees = async () => {
+    const productionId = localStorage.getItem('productinoId')
+    try {
+      const response = await API.getAPICalling(`Reports/contestant-fees?productionId=${productionId}`)
+      setContestantFees(response)
+      console.log(response)
+      handleContestantFeesOpen()
+    } catch (error) {
+      console.log(error.message)
+      setMessage(error.message)
+      handleMessageOpen()
+    }
   }
 
-  const handleSubmit = async () => {
-    if (selectedType === 1) {
-      const productionId = localStorage.getItem('productinoId')
-      try {
-        const response = await API.getAPICalling(`Reports/contestant-fees?productionId=${productionId}`)
-        setContestantFees(response)
-        console.log(response)
-        handleContestantFeesOpen()
-      } catch (error) {
-        console.log(error.message)
-        setMessage(error.message)
-        handleMessageOpen()
-      }
-    } else {
-      const productionId = localStorage.getItem('productinoId')
-      try {
-        const response = await API.getAPICalling(
-          `Reports/winning-teams?productionId=${productionId}&payoffId=${selectedPayoff.payoff.id}&check=${
-            isChecked ? 1 : 0
-          }`
-        )
-        setContestantWinnings(response)
-        handleContestantWinningsOpen()
-      } catch (error) {
-        console.log(error.message)
-        setMessage(error.message)
-        handleMessageOpen()
-      }
+  const fetchContestantWinnings = async () => {
+    const productionId = localStorage.getItem('productinoId')
+    try {
+      const response = await API.getAPICalling(
+        `Reports/winning-teams?productionId=${productionId}&payoffId=${selectedPayoff.payoff.id}&check=${
+          isChecked ? 1 : 0
+        }`
+      )
+      setContestantWinnings(response)
+      handleContestantWinningsOpen()
+    } catch (error) {
+      console.log(error.message)
+      setMessage(error.message)
+      handleMessageOpen()
     }
   }
 
@@ -136,31 +131,24 @@ const GetProductionReports = ({ selectedPayoff, isChecked }) => {
 
   return (
     <>
-      <Grid item xs={6} sm={2}>
-        <Typography variant='body2' sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'start', paddingTop: '15px' }}>
-          Report Type
-        </Typography>
-      </Grid>
-      <Grid item xs={6} sm={7}>
-        <FormControl fullWidth>
-          <InputLabel id='form-layouts-separator-select-label'>Type</InputLabel>
-          <Select
-            label='Country'
-            defaultValue=''
-            value={`${selectedType}`}
-            onChange={handleChange}
-            id='form-layouts-separator-select'
-            labelId='form-layouts-separator-select-label'
-          >
-            <MenuItem value='1'>Contestant Fees</MenuItem>
-            <MenuItem value='2'>Contestant Winnings</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={12} sm={3}>
-        <Button type='button' onClick={handleSubmit} variant='contained' size='large'>
-          Get Report
-        </Button>
+      <Grid item xs={12}>
+        <Card>
+          <CardHeader title='Production Reports' titleTypographyProps={{ variant: 'h6' }} />
+          <CardContent>
+            <Grid container spacing={3}>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchContestantFees} variant='outlined' size='medium' startIcon={<CashMultiple />}>
+                  Contestant Fees
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchContestantWinnings} variant='outlined' size='medium' startIcon={<TrophyOutline />}>
+                  Contestant Winnings
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
       </Grid>
 
       {/* Modal for Message Display */}
@@ -266,11 +254,11 @@ const GetProductionReports = ({ selectedPayoff, isChecked }) => {
                       </TableCell>
                       <TableCell align='center'>
                         {contestant.participations.map((ropings, index) => (
-                          <Typography key={index}>{ropings.entryFees}</Typography>
+                          <Typography key={index}>{formatCurrency(ropings.entryFees)}</Typography>
                         ))}
                       </TableCell>
                       <TableCell align='center'>
-                        <Typography fontWeight='600'>{contestant.totalFees}</Typography>
+                        <Typography fontWeight='600'>{formatCurrency(contestant.totalFees)}</Typography>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -359,7 +347,7 @@ const GetProductionReports = ({ selectedPayoff, isChecked }) => {
                         <TableCell align='center'>
                           {' '}
                           <Typography fontSize='14px' fontWeight='600'>
-                            Healer Payout
+                            Heeler Payout
                           </Typography>
                         </TableCell>
                       </TableRow>
@@ -382,13 +370,13 @@ const GetProductionReports = ({ selectedPayoff, isChecked }) => {
                             <Typography>{winningTeams.team.healer}</Typography>
                           </TableCell>
                           <TableCell align='center'>
-                            <Typography>{winningTeams.winningAmount}</Typography>
+                            <Typography>{formatCurrency(winningTeams.winningAmount)}</Typography>
                           </TableCell>
                           <TableCell align='center'>
-                            <Typography>{winningTeams.headerPayout}</Typography>
+                            <Typography>{formatCurrency(winningTeams.headerPayout)}</Typography>
                           </TableCell>
                           <TableCell align='center'>
-                            <Typography>{winningTeams.healerPayout}</Typography>
+                            <Typography>{formatCurrency(winningTeams.healerPayout)}</Typography>
                           </TableCell>
                         </TableRow>
                       ))}

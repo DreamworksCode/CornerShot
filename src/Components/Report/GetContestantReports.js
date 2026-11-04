@@ -2,9 +2,9 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import {
   Box,
-  FormControl,
-  InputLabel,
-  MenuItem,
+  Card,
+  CardContent,
+  CardHeader,
   Modal,
   Paper,
   Table,
@@ -18,10 +18,10 @@ import {
   tableCellClasses,
   useMediaQuery
 } from '@mui/material'
-import Select from '@mui/material/Select'
 import API from 'src/pages/api'
 import { useState } from 'react'
 import { useTheme } from '@mui/material/styles'
+import EmailOutline from 'mdi-material-ui/EmailOutline'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -61,7 +61,6 @@ const GetContestantReports = () => {
     maxHeight: 600
   }
 
-  const [selectedType, setSelectedType] = useState(null)
   const [contestant, setContestant] = useState([])
 
   const [message, setMessage] = useState('')
@@ -77,27 +76,15 @@ const GetContestantReports = () => {
   const handleEmailOpen = () => setEmailOpen(true)
   const handleEmailClose = () => setEmailOpen(false)
 
-  const handleChange = e => {
-    const { value } = e.target
-    setSelectedType(Number(value))
-  }
-
-  const handleSubmit = async () => {
-    if (selectedType === 1) {
-      const token = localStorage.getItem('token')
-      try {
-        const response = await API.getAPICalling('contestant', token)
-        setContestant(response.data)
-        handleEmailOpen()
-        // console.log(response.data)
-      } catch (error) {
-        console.log('Some error occured', error)
-      }
-    } else if (selectedType === 2) {
-      setMessage('Right now we dont have any operation for this event :)')
-      handleMessageOpen()
-    } else {
-      setMessage('Please select an option first')
+  const fetchEmailList = async () => {
+    const token = localStorage.getItem('token')
+    try {
+      const response = await API.getAPICalling('contestant', token)
+      setContestant(response.data)
+      handleEmailOpen()
+    } catch (error) {
+      console.log('Some error occured', error)
+      setMessage(error.message)
       handleMessageOpen()
     }
   }
@@ -120,30 +107,19 @@ const GetContestantReports = () => {
 
   return (
     <>
-      <Grid item xs={6} sm={2}>
-        <Typography variant='body2' sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'start', paddingTop: '15px' }}>
-          Report Type
-        </Typography>
-      </Grid>
-      <Grid item xs={6} sm={7}>
-        <FormControl fullWidth>
-          <InputLabel id='form-layouts-separator-select-label'>Type</InputLabel>
-          <Select
-            label='Country'
-            defaultValue=''
-            onChange={handleChange}
-            id='form-layouts-separator-select'
-            labelId='form-layouts-separator-select-label'
-          >
-            <MenuItem value='1'>Email List</MenuItem>
-            {/* <MenuItem value='2'>Send Message</MenuItem> */}
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={12} sm={3}>
-        <Button type='button' onClick={handleSubmit} variant='contained' size='large'>
-          Get Report
-        </Button>
+      <Grid item xs={12}>
+        <Card>
+          <CardHeader title='Contestant Reports' titleTypographyProps={{ variant: 'h6' }} />
+          <CardContent>
+            <Grid container spacing={3}>
+              <Grid item xs={6} sm={4} md={3}>
+                <Button fullWidth type='button' onClick={fetchEmailList} variant='outlined' size='medium' startIcon={<EmailOutline />}>
+                  Email List
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
       </Grid>
 
       {/* Modal for Message Display */}

@@ -9,6 +9,7 @@ import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
 import {
   Box,
+  Divider,
   InputLabel,
   MenuItem,
   Modal,
@@ -137,6 +138,20 @@ const UpdatePayoff = ({ check, flag }) => {
       const response = await API.putAPICalling(`payoffs/${selectedPayoff.id}/splits`, { splits: payoutSplits })
       setMessage(response.message || 'Splits saved successfully')
       handleMessageOpen()
+      setSplitsOpen(false)
+
+      // refresh the percentage distribution list so it reflects what was just saved
+      const id = localStorage.getItem('productinoId')
+      try {
+        const refreshed = await API.getAPICalling(`payoffs/get?production_id=${id}`)
+        setPayoffs(refreshed)
+        const updated = refreshed.find(item => item.payoff.id === selectedPayoff.id)
+        if (updated) {
+          setPercentageArray(updated.distribution)
+        }
+      } catch (refreshError) {
+        console.log('Some error refreshing payoffs:  ', refreshError)
+      }
     } catch (error) {
       setMessage(error.message)
       handleMessageOpen()
@@ -231,47 +246,76 @@ const UpdatePayoff = ({ check, flag }) => {
                   name='places_to_pay'
                 />
               </Grid>
-              <Grid
-                item
-                xs={12}
-                sm={listOpen ? 12 : 6}
-                sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
-              >
-                <Button onClick={() => setListOpen(prev => !prev)} variant='contained' size='large'>
+
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+
+              <Grid item xs={6} sm={3}>
+                <Button fullWidth onClick={() => setListOpen(prev => !prev)} variant='outlined' size='medium'>
                   {listOpen ? 'Hide Percentage Distribution' : 'Show Percentage Distribution'}
                 </Button>
               </Grid>
-              {listOpen && (
-                <TableContainer component={Paper}>
-                  <Table sx={{ miaxWidth: 550 }} size='small' aria-label='a dense table'>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell align='center'>Teams</TableCell>
-                        <TableCell align='center'>Percentage</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {percentageArray.map((percentage, index) => (
-                        <TableRow key={index} sx={{ '&:last-of-type  td, &:last-of-type  th': { border: 0 } }}>
-                          <TableCell align='center' component='th' scope='row'>
-                            {index + 1}
-                          </TableCell>
-                          <TableCell align='center'>{percentage}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-              <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                <Button disabled={selectedPayoff.id===null} onClick={handleLoadSplits} type='button' variant='contained' size='large'>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  fullWidth
+                  disabled={selectedPayoff.id === null}
+                  onClick={handleLoadSplits}
+                  type='button'
+                  variant='outlined'
+                  size='medium'
+                >
                   Configure Payout Splits
                 </Button>
               </Grid>
-              {splitsOpen && (
-                <>
+              <Grid item xs={6} sm={3}>
+                <Button fullWidth disabled={selectedPayoff.id === null} type='submit' variant='contained' size='medium'>
+                  Update
+                </Button>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Button
+                  fullWidth
+                  disabled={selectedPayoff.id === null}
+                  onClick={handleDeleteButtonClicked}
+                  type='button'
+                  variant='contained'
+                  color='error'
+                  size='medium'
+                >
+                  Delete
+                </Button>
+              </Grid>
+
+              {listOpen && (
+                <Grid item xs={12}>
                   <TableContainer component={Paper}>
-                    <Table sx={{ miaxWidth: 550 }} size='small' aria-label='a dense table'>
+                    <Table sx={{ maxWidth: 550 }} size='small' aria-label='a dense table'>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell align='center'>Teams</TableCell>
+                          <TableCell align='center'>Percentage</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {percentageArray.map((percentage, index) => (
+                          <TableRow key={index} sx={{ '&:last-of-type  td, &:last-of-type  th': { border: 0 } }}>
+                            <TableCell align='center' component='th' scope='row'>
+                              {index + 1}
+                            </TableCell>
+                            <TableCell align='center'>{percentage}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Grid>
+              )}
+
+              {splitsOpen && (
+                <Grid item xs={12}>
+                  <TableContainer component={Paper}>
+                    <Table sx={{ maxWidth: 550 }} size='small' aria-label='a dense table'>
                       <TableHead>
                         <TableRow>
                           <TableCell align='center'>Place</TableCell>
@@ -299,29 +343,17 @@ const UpdatePayoff = ({ check, flag }) => {
                       </TableBody>
                     </Table>
                   </TableContainer>
-                  <Grid item xs={12} sx={{ textAlign: 'center', marginTop: '10px' }}>
-                    <Typography variant='body2' sx={{ fontWeight: 600 }}>
-                      Total: {payoutSplits.reduce((sum, s) => sum + (Number(s.payout_percentage) || 0), 0)}%
-                      (must equal 100%)
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12} sx={{ textAlign: 'center' }}>
-                    <Button onClick={handleSaveSplits} type='button' variant='contained' size='large'>
+                  <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'center', mt: 2 }}>
+                    Total: {payoutSplits.reduce((sum, s) => sum + (Number(s.payout_percentage) || 0), 0)}%
+                    (must equal 100%)
+                  </Typography>
+                  <Box sx={{ textAlign: 'center', mt: 2 }}>
+                    <Button onClick={handleSaveSplits} type='button' variant='contained' size='medium'>
                       Save Splits
                     </Button>
-                  </Grid>
-                </>
+                  </Box>
+                </Grid>
               )}
-              <Grid item xs={12} sm={listOpen ? 6 : 3} sx={{ textAlign: 'center' }}>
-                <Button disabled={selectedPayoff.id===null?true:false} type='submit' variant='contained' size='large'>
-                  Update
-                </Button>
-              </Grid>
-              <Grid item xs={12} sm={listOpen ? 6 : 3} sx={{ textAlign: 'center' }}>
-                <Button disabled={selectedPayoff.id===null?true:false} onClick={handleDeleteButtonClicked} type='button' variant='contained' size='large'>
-                  Delete
-                </Button>
-              </Grid>
             </Grid>
           </form>
         </CardContent>

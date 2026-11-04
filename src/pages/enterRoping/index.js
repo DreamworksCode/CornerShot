@@ -13,6 +13,7 @@ import DrawPot from 'src/ropingTypes/DrawPot'
 import PickOnly from 'src/ropingTypes/PickOnly'
 import PickAndDraw from 'src/ropingTypes/PickAndDraw'
 import PickOrDraw from 'src/ropingTypes/PickOrDraw'
+import RopingStageBadge from 'src/Components/Roping/RopingStageBadge'
 
 const index = () => {
   const [ropingType, setRopingType] = useState('Draw Pot')
@@ -81,10 +82,11 @@ const index = () => {
                 Roping Information
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={6} sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography variant='body1' sx={{ fontWeight: 600, paddingTop: '15px' }}>
                 {ropingName || 'No roping selected'}
               </Typography>
+              {selectedRopingId && <RopingStageBadge ropingId={selectedRopingId} />}
             </Grid>
           </Grid>
         </CardContent>

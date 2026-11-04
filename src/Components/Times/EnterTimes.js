@@ -70,6 +70,18 @@ const EnterTimes = ({ roping, selectedRopingId }) => {
 
   const [data,setData]=useState([]);
   const [check,setCheck]=useState(false);
+  const [payoutComplete, setPayoutComplete] = useState(false)
+
+  useEffect(async () => {
+    const token = localStorage.getItem('token')
+    try {
+      const response = await API.getAPICalling(`Reports/financial-summary/${selectedRopingId}`, token)
+      setPayoutComplete(response.payoutStatus === 'COMPLETE')
+    } catch (error) {
+      // no financials configured yet, or roping not found - treat as not locked
+      setPayoutComplete(false)
+    }
+  }, [selectedRopingId, flag])
 
 
   useEffect(async () => {
@@ -283,7 +295,7 @@ const EnterTimes = ({ roping, selectedRopingId }) => {
                     variant='body2'
                     sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'start', paddingTop: '15px' }}
                   >
-                    Shot Go Information
+                    Short Go Information
                   </Typography>
                 </Grid>
                 <Grid item xs={6} sm={6}>
@@ -350,6 +362,7 @@ const EnterTimes = ({ roping, selectedRopingId }) => {
                     round={round}
                     selectedRopingId={selectedRopingId}
                     teamsForUpdate={teamsForUpdate}
+                    payoutComplete={payoutComplete}
                   />
               </Grid>
 
@@ -394,6 +407,7 @@ const EnterTimes = ({ roping, selectedRopingId }) => {
                     round={round}
                     leg={leg}
                     barrier={barrier}
+                    payoutComplete={payoutComplete}
                   />
                 </Grid>
               )}

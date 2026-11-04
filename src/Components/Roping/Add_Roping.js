@@ -6,10 +6,11 @@ import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-// import InputAdornment from '@mui/material/InputAdornment'
+import InputAdornment from '@mui/material/InputAdornment'
 import {
   Box,
   Checkbox,
+  Divider,
   FormControl,
   FormControlLabel,
   InputLabel,
@@ -156,6 +157,9 @@ const Add_Roping = ({ handleCheck }) => {
   // stock_charge_percent now accepts decimals (e.g. 10.5) - do not truncate to int
   const toFloat = val => (val !== null && val !== '' && val !== undefined ? parseFloat(val) : null)
 
+  // dollar fields are optional - an empty field means $0, not "unset"
+  const toDollar = val => (val !== null && val !== '' && val !== undefined ? parseInt(val, 10) : 0)
+
   const parsedRoping = {
     ...roping,
     draw_count: toInt(roping.draw_count),
@@ -173,11 +177,11 @@ const Add_Roping = ({ handleCheck }) => {
   }
 
   const parsedRopingFinancials = {
-    entry_fees: toInt(ropingFinancials.entry_fees),
+    entry_fees: toDollar(ropingFinancials.entry_fees),
     stock_charge_percent: toFloat(ropingFinancials.stock_charge_percent),
-    association_fees: toInt(ropingFinancials.association_fees),
-    price_deduction: toInt(ropingFinancials.price_deduction),
-    added_money: toInt(ropingFinancials.added_money),
+    association_fees: toDollar(ropingFinancials.association_fees),
+    price_deduction: toDollar(ropingFinancials.price_deduction),
+    added_money: toDollar(ropingFinancials.added_money),
     payback_percent: toFloat(ropingFinancials.payback_percent)
   }
 
@@ -235,10 +239,8 @@ const Add_Roping = ({ handleCheck }) => {
   try {
     const response = await API.postAPICalling('ropings/create', data)
     console.log(response)
-    setMessage('Roping Added Successfully')
     handleCheck()
     handleClose()
-    handleMessageOpen()
   } catch (error) {
     console.log('Some error:  ', error)
     setMessage(error.message)
@@ -300,28 +302,19 @@ const Add_Roping = ({ handleCheck }) => {
                   }
                 />
               </Grid>
-              <Grid item xs={12}>
-                <Button type='submit' variant='contained' size='large'>
-                  Add
-                </Button>
-              </Grid>
+              {!open && (
+                <Grid item xs={12}>
+                  <Button type='submit' variant='contained' size='large'>
+                    Add
+                  </Button>
+                </Grid>
+              )}
             </Grid>
           </form>
-        </CardContent>
-      </Card>
-      <div>
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby='modal-modal-title'
-          aria-describedby='modal-modal-description'
-        >
-          <Box sx={style}>
-            <Card>
-              {/* <CardHeader title='Roping Information' titleTypographyProps={{ variant: 'h6' }} /> */}
-              <CardContent>
-                <form onSubmit={handleSubmit}>
-                  <Grid container spacing={5}>
+          {open && (
+            <form onSubmit={handleSubmit}>
+              <Divider sx={{ my: 5 }}>Roping Details</Divider>
+              <Grid container spacing={5}>
                     <Grid item xs={draw ? 6 : 12}>
                       <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
                         Roping Type
@@ -439,11 +432,10 @@ const Add_Roping = ({ handleCheck }) => {
                         type='number'
                         onChange={handleRopingFinancialsChange}
                         inputProps={{ min: 0 }}
-                        required
+                        InputProps={{ startAdornment: <InputAdornment position='start'>$</InputAdornment> }}
                         name='entry_fees'
                         value={ropingFinancials.entry_fees}
-                        // label='Phone No.'
-                        placeholder='00'
+                        placeholder='0.00'
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -464,18 +456,17 @@ const Add_Roping = ({ handleCheck }) => {
                     </Grid>
                     <Grid item xs={12} sm={6}>
                       <Typography variant='body2' sx={{ fontWeight: 600, marginBottom: '10px' }}>
-                        Assosiation Fee(Per Team)
+                        Association Fee(Per Team)
                       </Typography>
                       <TextField
                         fullWidth
                         type='number'
                         onChange={handleRopingFinancialsChange}
                         inputProps={{ min: 0 }}
-                        required
+                        InputProps={{ startAdornment: <InputAdornment position='start'>$</InputAdornment> }}
                         name='association_fees'
                         value={ropingFinancials.association_fees}
-                        // label='Phone No.'
-                        placeholder='00'
+                        placeholder='0.00'
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -487,11 +478,10 @@ const Add_Roping = ({ handleCheck }) => {
                         type='number'
                         onChange={handleRopingFinancialsChange}
                         inputProps={{ min: 0 }}
-                        required
+                        InputProps={{ startAdornment: <InputAdornment position='start'>$</InputAdornment> }}
                         name='price_deduction'
                         value={ropingFinancials.price_deduction}
-                        // label='Phone No.'
-                        placeholder='00'
+                        placeholder='0.00'
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -503,11 +493,10 @@ const Add_Roping = ({ handleCheck }) => {
                         type='number'
                         onChange={handleRopingFinancialsChange}
                         inputProps={{ min: 0 }}
-                        required
+                        InputProps={{ startAdornment: <InputAdornment position='start'>$</InputAdornment> }}
                         name='added_money'
                         value={ropingFinancials.added_money}
-                        // label='Phone No.'
-                        placeholder='00'
+                        placeholder='0.00'
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -756,17 +745,17 @@ const Add_Roping = ({ handleCheck }) => {
                         CONFIRM
                       </Button>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Button type='button' onClick={handleClose} variant='contained' size='large'>
-                        CANCEL
-                      </Button>
-                    </Grid>
-                  </Grid>
-                </form>
-              </CardContent>
-            </Card>
-          </Box>
-        </Modal>
+                <Grid item xs={6}>
+                  <Button type='button' onClick={handleClose} variant='contained' size='large'>
+                    CANCEL
+                  </Button>
+                </Grid>
+              </Grid>
+            </form>
+          )}
+        </CardContent>
+      </Card>
+      <div>
         <Modal
           open={messageOpen}
           onClose={handleMessageClose}

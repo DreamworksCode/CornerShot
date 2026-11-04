@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import API from '../api'
 import router from 'next/router'
 import EnterTimes from 'src/Components/Times/EnterTimes'
+import RopingStageBadge from 'src/Components/Roping/RopingStageBadge'
 
 const index = () => {
 const [ropingName, setRopingName] = useState('')
@@ -70,10 +71,11 @@ useEffect(async () => {
                 Roping Information
               </Typography>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} sm={6} sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography variant='body1' sx={{ fontWeight: 600, paddingTop: '15px' }}>
                 {ropingName || 'No roping selected'}
               </Typography>
+              {selectedRopingId && <RopingStageBadge ropingId={selectedRopingId} />}
             </Grid>
           </Grid>
         </CardContent>

@@ -47,6 +47,10 @@ const Production_Select_Form = ({ productions, setProductions }) => {
     name: '',
     date: ''
   })
+  const [originalContent, setOriginalContent] = useState({
+    name: '',
+    date: ''
+  })
   useEffect(async () => {
     console.log(productions)
     const token = localStorage.getItem('token')
@@ -119,6 +123,10 @@ const Production_Select_Form = ({ productions, setProductions }) => {
           name:response.data.name,
           date:formattedDate
         })
+        setOriginalContent({
+          name:response.data.name,
+          date:formattedDate
+        })
         handleEditOpen();
       } catch (error) {
         setMessage(error.message);
@@ -156,9 +164,24 @@ const Production_Select_Form = ({ productions, setProductions }) => {
       handleOpen();
     }
     else{
+      // only send the field(s) that actually changed - PUT /production/:id now
+      // accepts a partial body, so there's no need to resend an untouched field
+      const changes = {}
+      if (editableContent.name !== originalContent.name) {
+        changes.name = editableContent.name
+      }
+      if (editableContent.date !== originalContent.date) {
+        changes.date = editableContent.date
+      }
+      if (Object.keys(changes).length === 0) {
+        setMessage('Nothing changed')
+        handleOpen();
+
+        return
+      }
       const token=localStorage.getItem('token');
       try {
-        const response=await API.putAPICalling(`production/${selected}`,editableContent,token);;
+        const response=await API.putAPICalling(`production/${selected}`,changes,token);;
         setMessage("Updated Successfully");
         handleOpen();
         setShouldReload(prev=>!prev);

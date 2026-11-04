@@ -9,6 +9,7 @@ import CardContent from '@mui/material/CardContent'
 // ** Icons Imports
 import {
   Box,
+  Divider,
   FormControlLabel,
   FormHelperText,
   Modal,
@@ -130,7 +131,7 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
     try {
       await API.putAPICalling(`contestant/${selectedHealer.id}`, { healer_rating: selectedHealer.healer_rating })
       setHealerRatingSaved(true)
-      setMessage('Healer rating saved to profile')
+      setMessage('Heeler rating saved to profile')
       handleMessageOpen()
     } catch (error) {
       setMessage(error.message)
@@ -220,16 +221,11 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
         <CardHeader title='Add Team' titleTypographyProps={{ variant: 'h6' }} />
         <CardContent>
           <form>
-            <Grid container spacing={5}>
-              <Grid item xs={6} sm={3}>
-                <Typography
-                  variant='body2'
-                  sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'end', paddingTop: '15px' }}
-                >
+            <Grid container spacing={4}>
+              <Grid item xs={12} sm={5}>
+                <Typography variant='body2' sx={{ fontWeight: 600, mb: 1 }}>
                   Header Name
                 </Typography>
-              </Grid>
-              <Grid item xs={6} sm={3}>
                 <ContestantAutocomplete
                   label='Header'
                   value={selectedHeader}
@@ -240,11 +236,9 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
                 />
               </Grid>
               <Grid item xs={6} sm={3}>
-                <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
+                <Typography variant='body2' sx={{ fontWeight: 600, mb: 1 }}>
                   Header Rating
                 </Typography>
-              </Grid>
-              <Grid item xs={6} sm={2}>
                 <TextField
                   fullWidth
                   onChange={handleHeaderRatingChange}
@@ -257,24 +251,20 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
                   placeholder='00'
                 />
               </Grid>
-              <Grid item xs={6} sm={1} sx={{ display: 'flex', alignItems: 'center' }}>
+              <Grid item xs={6} sm={4} sx={{ display: 'flex', alignItems: 'flex-end' }}>
                 {selectedHeader && selectedHeader.header_rating !== null && !headerRatingSaved && (
-                  <Button onClick={handleSaveHeaderRating} type='button' variant='outlined' size='small'>
+                  <Button fullWidth onClick={handleSaveHeaderRating} type='button' variant='outlined' size='small'>
                     Save to profile
                   </Button>
                 )}
               </Grid>
-              <Grid item xs={6} sm={3}>
-                <Typography
-                  variant='body2'
-                  sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'end', paddingTop: '15px' }}
-                >
-                  Healer Name
+
+              <Grid item xs={12} sm={5}>
+                <Typography variant='body2' sx={{ fontWeight: 600, mb: 1 }}>
+                  Heeler Name
                 </Typography>
-              </Grid>
-              <Grid item xs={6} sm={3}>
                 <ContestantAutocomplete
-                  label='Healer'
+                  label='Heeler'
                   value={selectedHealer}
                   onSelect={contestant => {
                     setSelectedHealer(contestant)
@@ -283,11 +273,9 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
                 />
               </Grid>
               <Grid item xs={6} sm={3}>
-                <Typography variant='body2' sx={{ fontWeight: 600, textAlign: 'end', paddingTop: '15px' }}>
+                <Typography variant='body2' sx={{ fontWeight: 600, mb: 1 }}>
                   Heeler Rating
                 </Typography>
-              </Grid>
-              <Grid item xs={6} sm={2}>
                 <TextField
                   fullWidth
                   onChange={handleHealerRatingChange}
@@ -300,25 +288,30 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
                   placeholder='00'
                 />
               </Grid>
-              <Grid item xs={6} sm={1} sx={{ display: 'flex', alignItems: 'center' }}>
+              <Grid item xs={6} sm={4} sx={{ display: 'flex', alignItems: 'flex-end' }}>
                 {selectedHealer && selectedHealer.healer_rating !== null && !healerRatingSaved && (
-                  <Button onClick={handleSaveHealerRating} type='button' variant='outlined' size='small'>
+                  <Button fullWidth onClick={handleSaveHealerRating} type='button' variant='outlined' size='small'>
                     Save to profile
                   </Button>
                 )}
               </Grid>
+
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+
               <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Button onClick={handleAddTeam} type='button' variant='contained' size='medium'>
+                <Button fullWidth onClick={handleAddTeam} type='button' variant='contained' size='medium'>
                   Add Team
                 </Button>
               </Grid>
               <Grid item  xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Button onClick={handleDeleteTeam} type='button' variant='contained' size='medium'>
+                <Button fullWidth onClick={handleDeleteTeam} type='button' variant='contained' size='medium'>
                   Delete Team
                 </Button>
               </Grid>
               <Grid item xs={12} sm={4} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Button onClick={handleOpen} type='button' variant='contained' size='medium'>
+                <Button fullWidth onClick={handleOpen} type='button' variant='contained' size='medium'>
                   List all Teams
                 </Button>
               </Grid>
