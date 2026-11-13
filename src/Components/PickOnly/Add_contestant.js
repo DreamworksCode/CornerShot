@@ -175,6 +175,10 @@ const Add_contestant = ({ selectedRopingId, flag, setFlag, classification }) => 
         setMessage(response.message)
         handleMessageOpen()
         setFlag(prev => !prev)
+        setSelectedHeader(null)
+        setSelectedHealer(null)
+        setHeaderRatingSaved(false)
+        setHealerRatingSaved(false)
       } catch (error) {
         console.log('Some error:  ', error)
         setMessage(error.message)
