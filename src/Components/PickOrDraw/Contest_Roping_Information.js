@@ -116,12 +116,8 @@ const Contest_Roping_Information = ({ selectedRopingId, classification, flag }) 
       let healersCount = 0
 
       response.forEach(item => {
-        if (item.header_entries === 1) {
-          headersCount++
-        }
-        if (item.healer_entries === 1) {
-          healersCount++
-        }
+        headersCount += item.header_entries || 0
+        healersCount += item.healer_entries || 0
       })
 
       setParticipants({
