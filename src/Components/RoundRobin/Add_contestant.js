@@ -72,7 +72,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
   const [drawEntries,setDrawEntries]=useState([]);
   const [selectedContestant, setSelectedContestant] = useState(null)
   const [ratingsSaved, setRatingsSaved] = useState(false)
-  const [entry, setEntry] = useState({ header: 1, healer: 0 })
+  const [role, setRole] = useState('heading')
   const [message, setMessage] =useState('')
   const [messageOpen, setMessageOpen] = useState(false)
   const handleMessageOpen = () => {
@@ -104,18 +104,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
   const handleChange = e => {
     // console.log(e.target.name)
     if(e.target.name==="checkbox"){
-      const item = e.target.value
-    if (item === 'heading') {
-      setEntry({
-        header: 1,
-        healer: 0
-      })
-    } else {
-      setEntry({
-        header: 0,
-        healer: 1
-      })
-    }
+      setRole(e.target.value)
     }else {
       const { name, value } = e.target;
     setSelectedContestant({
@@ -137,8 +126,8 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
       const data={
         header_rating:selectedContestant.header_rating,
         healer_rating:selectedContestant.healer_rating,
-        header_entries:entry.header,
-        healer_entries:entry.healer,
+        header_entries:role==='heading'?1:0,
+        healer_entries:role==='heeling'?1:0,
         roping_id:selectedRopingId,
         contestant_id:selectedContestant.id
       }
@@ -156,7 +145,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
         setFlag(prev=>!prev);
         setSelectedContestant(null)
         setRatingsSaved(false)
-        setEntry({ header: 1, healer: 0 })
+        setRole('heading')
       } catch (error) {
         console.log('Some error:  ', error)
         setMessage(error.message);
@@ -188,12 +177,12 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
         // else{
         //   setMessage("Deleted Successfully");
         // }
-          setMessage(response.message)
+          setMessage(response && response.message ? response.message : 'Removed from draw successfully')
         setFlag(prev=>!prev);
         handleMessageOpen();
       } catch (error) {
         console.log('Some error:  ', error)
-        setMessage(error.message);
+        setMessage(error && error.message ? error.message : 'Could not remove from draw');
         handleMessageOpen();
       }
     }
@@ -210,8 +199,8 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
         roping_id:selectedRopingId,
         header_rating:selectedContestant.header_rating,
         healer_rating:selectedContestant.healer_rating,
-        header_entries: entry.header,
-        healer_entries: entry.healer
+        header_entries: role==='heading'?1:0,
+        healer_entries: role==='heeling'?1:0
       }
       // console.log("id: ", selectedContestant.id, " roping_id: ", selectedRopingId);
       const id=selectedContestant.id;
@@ -306,7 +295,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
                 <RadioGroup
                   aria-labelledby='demo-radio-buttons-group-label'
                   defaultValue='heading'
-                  value={entry.header === 1 ? 'heading' : 'heeling'}
+                  value={role}
                   onChange={handleChange}
                   name='checkbox'
                 >

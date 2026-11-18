@@ -72,6 +72,7 @@ const EnterTimes = ({ roping, selectedRopingId }) => {
   const [data,setData]=useState([]);
   const [check,setCheck]=useState(false);
   const [payoutComplete, setPayoutComplete] = useState(false)
+  const [teamOrder, setTeamOrder] = useState('')
 
   useEffect(async () => {
     const token = localStorage.getItem('token')
@@ -188,6 +189,32 @@ const EnterTimes = ({ roping, selectedRopingId }) => {
     const { name, value } = e.target
     setRound(Number(value))
   }
+
+  const handleTeamOrderChange = e => {
+    setTeamOrder(e.target.value)
+  }
+
+  // sorts the not-yet-timed teams for this round by each team's cumulative
+  // standing (total_time) going into this round - teams with no prior time
+  // recorded yet (e.g. round 1) have no standing to sort by, so they stay
+  // in their original order, after any teams that do have a standing
+  const sortedTeams = React.useMemo(() => {
+    if (!teamOrder) return teams
+    const standingByTeamId = {}
+    averageData.forEach(entry => {
+      if (entry.team && entry.team.id !== undefined) {
+        standingByTeamId[entry.team.id] = entry.total_time
+      }
+    })
+    const withStanding = teams.map(team => ({ team, standing: standingByTeamId[team.id] }))
+    withStanding.sort((a, b) => {
+      if (a.standing === undefined && b.standing === undefined) return 0
+      if (a.standing === undefined) return 1
+      if (b.standing === undefined) return -1
+      return teamOrder === 'fastest' ? a.standing - b.standing : b.standing - a.standing
+    })
+    return withStanding.map(item => item.team)
+  }, [teams, teamOrder, averageData])
 
   // useEffect(async () => {
   //   setLeg(roping.ropingRules.leg_penalty)
@@ -341,12 +368,13 @@ const EnterTimes = ({ roping, selectedRopingId }) => {
                     <InputLabel id='form-layouts-separator-select-label'>Teams</InputLabel>
                     <Select
                       label='Contestant'
-                      defaultValue=''
+                      value={teamOrder}
+                      onChange={handleTeamOrderChange}
                       id='form-layouts-separator-select'
                       labelId='form-layouts-separator-select-label'
                     >
-                      <MenuItem value='UK'>Slowest to fastest</MenuItem>
-                      <MenuItem value='USA'>fastest to slowest</MenuItem>
+                      <MenuItem value='slowest'>Slowest to fastest</MenuItem>
+                      <MenuItem value='fastest'>fastest to slowest</MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>
@@ -358,7 +386,7 @@ const EnterTimes = ({ roping, selectedRopingId }) => {
                     setFlag={setFlag}
                     setTeamsForUpdate={setTeamsForUpdate}
                     check={check}
-                    teams={teams}
+                    teams={sortedTeams}
                     setTeams={setTeams}
                     round={round}
                     selectedRopingId={selectedRopingId}

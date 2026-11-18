@@ -70,7 +70,8 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {const theme = us
   const [drawEntries,setDrawEntries]=useState([]);
   const [selectedContestant, setSelectedContestant] = useState(null)
   const [ratingsSaved, setRatingsSaved] = useState(false)
-  const [entry, setEntry] = useState({ header: 1, healer: 0 })
+  const [role, setRole] = useState('heading')
+  const [maxEntriesPerRoper, setMaxEntriesPerRoper] = useState(null)
   const [message, setMessage] =useState('')
   const [messageOpen, setMessageOpen] = useState(false)
   const handleMessageOpen = () => {
@@ -101,21 +102,20 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {const theme = us
     }
   },[flag,selectedRopingId])
 
+  useEffect(async ()=>{
+    if(!selectedRopingId) return
+    try {
+      const response = await API.getAPICalling(`ropings/getroping/${selectedRopingId}`)
+      setMaxEntriesPerRoper(response.roping.max_entries_per_roper)
+    } catch (error) {
+      console.log('Some error:  ', error)
+    }
+  },[selectedRopingId])
+
   const handleChange = e => {
     // console.log(e.target.name)
     if(e.target.name==="checkbox"){
-      const item = e.target.value
-    if (item === 'heading') {
-      setEntry({
-        header: 1,
-        healer: 0
-      })
-    } else {
-      setEntry({
-        header: 0,
-        healer: 1
-      })
-    }
+      setRole(e.target.value)
     }else {
       const { name, value } = e.target;
     setSelectedContestant({
@@ -137,8 +137,8 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {const theme = us
       const data={
         header_rating:selectedContestant.header_rating,
         healer_rating:selectedContestant.healer_rating,
-        header_entries:entry.header,
-        healer_entries:entry.healer,
+        header_entries:role==='heading'?1:0,
+        healer_entries:role==='heeling'?1:0,
         roping_id:selectedRopingId,
         contestant_id:selectedContestant.id
       }
@@ -156,7 +156,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {const theme = us
         setFlag(prev=>!prev);
         setSelectedContestant(null)
         setRatingsSaved(false)
-        setEntry({ header: 1, healer: 0 })
+        setRole('heading')
       } catch (error) {
         console.log('Some error:  ', error)
         setMessage(error.message);
@@ -188,12 +188,12 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {const theme = us
         // else{
         //   setMessage("Deleted Successfully");
         // }
-          setMessage(response.message)
+          setMessage(response && response.message ? response.message : 'Removed from draw successfully')
         setFlag(prev=>!prev);
         handleMessageOpen();
       } catch (error) {
         console.log('Some error:  ', error)
-        setMessage(error.message);
+        setMessage(error && error.message ? error.message : 'Could not remove from draw');
         handleMessageOpen();
       }
     }
@@ -210,8 +210,8 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {const theme = us
         roping_id:selectedRopingId,
         header_rating:selectedContestant.header_rating,
         healer_rating:selectedContestant.healer_rating,
-        header_entries: entry.header,
-        healer_entries: entry.healer,
+        header_entries: role==='heading'?1:0,
+        healer_entries: role==='heeling'?1:0,
         contestant_id:selectedContestant.id
       }
       // console.log("id: ", selectedContestant.id, " roping_id: ", selectedRopingId);
@@ -307,7 +307,7 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {const theme = us
                 <RadioGroup
                   aria-labelledby='demo-radio-buttons-group-label'
                   defaultValue='heading'
-                  value={entry.header === 1 ? 'heading' : 'heeling'}
+                  value={role}
                   onChange={handleChange}
                   name='checkbox'
                 >
@@ -335,10 +335,11 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {const theme = us
                 placeholder='00'
               />
             </Grid>
-
             <Grid item xs={12}>
               <FormHelperText id='form-layouts-basic-password-helper'>
-                * Add aditional draw entries to existing entry count
+                {maxEntriesPerRoper
+                  ? `* This roping's Max Entries Per Roper is ${maxEntriesPerRoper} - this roper can be drawn into up to ${maxEntriesPerRoper} team(s); the draw applies this automatically.`
+                  : '* Add aditional draw entries to existing entry count'}
               </FormHelperText>
             </Grid>
             {selectedContestant && selectedContestant.header_rating !== null && selectedContestant.healer_rating !== null && !ratingsSaved && (
