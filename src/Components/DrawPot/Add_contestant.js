@@ -207,44 +207,6 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
   }
 
 
-  const handleUpdateButtonClick=async (e)=>{
-    if(!selectedContestant || selectedContestant.header_rating===null || selectedContestant.healer_rating===null){
-      setMessage("Please select a contestant first");
-      handleMessageOpen();
-    }
-    else{
-      const data={
-        roping_id:selectedRopingId,
-        header_rating:selectedContestant.header_rating,
-        healer_rating:selectedContestant.healer_rating,
-        header_entries: role==='heading'?1:0,
-        healer_entries: role==='heeling'?1:0
-      }
-      // console.log("id: ", selectedContestant.id, " roping_id: ", selectedRopingId);
-      const id=selectedContestant.id;
-      try {
-        const response = await API.putAPICalling(`draw-entries/updateDraw/${id}`, data)
-        console.log(response)
-        // setMessage("Contestant Updated Successfully");
-        // if(response.message==="Error updating draw entries and contestant")
-        // {
-        //   setMessage("Error Updating Draw");;
-        // }
-        // else{
-        //   setMessage("Contestant Updated Successfully");
-        // }
-        setMessage(response.message)
-        setFlag(prev=>!prev);
-        handleMessageOpen();
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setMessage(error.message);
-        handleMessageOpen();
-      }
-    }
-  }
-
-
   // useEffect(()=>{
   //   console.log(entry);
   // },[entry]);
@@ -377,11 +339,6 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
             <Grid item xs={12} sm={3}>
               <Button type='submit' variant='contained' size='medium'>
                 Add To Draw
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <Button onClick={handleUpdateButtonClick} type='button' variant='contained' size='medium'>
-                Update Draw
               </Button>
             </Grid>
             <Grid item xs={12} sm={3}>

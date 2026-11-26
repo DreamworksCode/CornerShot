@@ -132,6 +132,29 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
       handleMessageOpen();
     }
     else{
+      // Pick or Draw's backend doesn't check the combined manual-team + draw-entry
+      // cap before accepting a new draw entry (unlike Pick & Draw) - it only enforces
+      // the cap later when the draw actually runs. Check it here so the operator is
+      // told up front instead of having their extra entries silently go unused.
+      if(maxEntriesPerRoper){
+        let manualCount = 0
+        try {
+          const existingTeams = await API.getAPICalling(`Teams/?ropingId=${selectedRopingId}&roping_team_type=Pick_Or_Draw`)
+          if(Array.isArray(existingTeams)){
+            manualCount = existingTeams.filter(
+              t => (t.header && t.header.id === selectedContestant.id) || (t.healer && t.healer.id === selectedContestant.id)
+            ).length
+          }
+        } catch (error) {
+          // no manual teams yet for this roping - manualCount stays 0
+        }
+        const drawEntryCount = drawEntries.filter(d => d.contestant && d.contestant.name === selectedContestant.name).length
+        if(manualCount + drawEntryCount >= maxEntriesPerRoper){
+          setMessage(`${selectedContestant.name} is already entered in the maximum number of teams (${maxEntriesPerRoper}) allowed for this roping.`)
+          handleMessageOpen();
+          return
+        }
+      }
       const data={
         header_rating:selectedContestant.header_rating,
         healer_rating:selectedContestant.healer_rating,
@@ -193,45 +216,6 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
       } catch (error) {
         console.log('Some error:  ', error)
         setMessage(error && error.message ? error.message : 'Could not remove from draw');
-        handleMessageOpen();
-      }
-    }
-  }
-
-
-  const handleUpdateButtonClick=async (e)=>{
-    if(!selectedContestant || selectedContestant.header_rating===null || selectedContestant.healer_rating===null){
-      setMessage("Please select a contestant first");
-      handleMessageOpen();
-    }
-    else{
-      const data={
-        roping_id:selectedRopingId,
-        header_rating:selectedContestant.header_rating,
-        healer_rating:selectedContestant.healer_rating,
-        header_entries: role==='heading'?1:0,
-        healer_entries: role==='heeling'?1:0,
-        contestant_id:selectedContestant.id
-      }
-      // console.log("id: ", selectedContestant.id, " roping_id: ", selectedRopingId);
-      const id=selectedContestant.id;
-      try {
-        const response = await API.putAPICalling(`draw-entries/updateDraw/${id}`, data)
-        console.log(response)
-        // setMessage("Contestant Updated Successfully");
-        // if(response.message==="Error updating draw entries and contestant")
-        // {
-        //   setMessage("Error Updating Draw");;
-        // }
-        // else{
-        //   setMessage("Contestant Updated Successfully");
-        // }
-        setMessage(response.message)
-        setFlag(prev=>!prev);
-        handleMessageOpen();
-      } catch (error) {
-        console.log('Some error:  ', error)
-        setMessage(error.message);
         handleMessageOpen();
       }
     }
@@ -371,11 +355,6 @@ const Add_contestant = ({ selectedRopingId,flag, setFlag }) => {
             <Grid item xs={12} sm={3}>
               <Button type='submit' variant='contained' size='medium'>
                 Add To Draw
-              </Button>
-            </Grid>
-            <Grid item xs={12} sm={3}>
-              <Button onClick={handleUpdateButtonClick} type='button' variant='contained' size='medium'>
-                Update Draw
               </Button>
             </Grid>
             <Grid item xs={12} sm={3}>
